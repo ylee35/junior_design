@@ -1,0 +1,4 @@
+1. Turn on red LED and detect from phototransistor (measure the reflected signal ambient light)
+2. Turn off red, turn on blue and detect from phototransistor 
+3. Turn off blue, measure ambient light
+4. For each color, subtract out ambient light contribution 

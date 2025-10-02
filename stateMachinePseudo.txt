@@ -1,0 +1,58 @@
+BOT #1 Movements: 
+1. Cross to the other side
+    Once server connected, cross to other side
+
+2. Stop when it senses the wall at the top and turn around
+    Sense wall --> call stop function
+    Turn around 180 degrees
+
+3. Cross back to find the red lane
+    Go forward until red sensed, then stop
+
+4. Follow the red lane until it senses the wall at the right
+    Turn left
+    Follow the red lane by continuously sensing and checking that on red
+    (if we don't continuously poll then how?)
+    When wall sensed, stop
+
+5. Turn left and find the yellow lane
+    Turn left by 70 degrees
+    Move forward until yellow lane spotted
+
+6. Follow the yellow lane until it senses the wall at the left
+    Turn 90 degrees to the left
+    Continuously sensing yellow, follow yellow lane
+    When wall sensed, stop
+
+7. Turn left and return to the starting position
+    Turn left by 120 degrees
+    Move forward until wall sensed
+    Turn 180 degrees so back in position started at
+
+have an array of [red, yellow, blue], just reverse for bot2
+
+General: 
+Move forward at some speed until wall sensed
+Turn 180 degrees
+Go forward until first color found
+DEVIATES
+    Bot 1: Turns left for 110 degrees
+    Bot 2: Turns right for 110 degrees
+Go forward, continuously sensing color until wall hit
+DEVIATES
+    Bot 1: Turn left less than 90 degrees
+    Bot 2: Turn right 110 degrees
+Go forward until find next color
+DEVIATES:
+    Bot 1: Turn left to find yellow 
+    Bot 2: Turn right to find yellow
+Go forward, continuously sensiing color until wall hit
+DEVIATES   
+    Bot 1: Turn left 90 degrees
+    Bot 2: Turn right 90 degrees
+Move forward until hit wall
+
+- can continuously poll 
+- hardcode degrees but not length of movement
+- one universal state machine, diff booleans (need to do all four)
+- can tell bot what of the four states using server, button, changing code 
