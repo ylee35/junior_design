@@ -1,0 +1,153 @@
+#include <Arduino.h>
+
+// Motor A connections
+int enA = 9;
+int in1 = 10;
+int in2 = 11;
+// Motor B connections
+int enB = 3;
+int in3 = 5;
+int in4 = 6;
+
+void directionControl();
+void speedControl();
+void forward(int max_speed);
+void setup();
+void stop();
+void backward(int max_speed);
+void pivot_c(int max_speed);
+void pivot_cc(int max_speed);
+void right_turn(int left_speed, int right_speed);
+void left_turn(int left_speed, int right_speed);
+
+
+void setup() {
+  // Set all the motor control pins to outputs
+  Serial.begin(9600);
+  pinMode(enA, OUTPUT);
+  pinMode(enB, OUTPUT);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
+
+  // Turn off motors - Initial state
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+  digitalWrite(enA, LOW);
+  digitalWrite(enB, LOW);
+}
+
+void loop() {
+  forward(200);
+  // right_turn(200, 100);
+  // pivot_cc(200);
+  delay(1000);
+}
+
+
+void stop() {
+  // Turn off motors
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+}
+
+void backward(int max_speed) {
+  digitalWrite(enA, HIGH);
+  digitalWrite(enB, HIGH);
+  // Turn on motors
+  digitalWrite(in1, LOW); //right motor
+  digitalWrite(in3, LOW); //left motor
+  digitalWrite(in2, HIGH); //right motor
+  digitalWrite(in4, HIGH); //left motor
+
+  analogWrite(enB, max_speed); //left motor enable
+  analogWrite(enA, max_speed); //right motor enable
+  delay(20);
+  
+}
+
+void forward(int max_speed) {
+  digitalWrite(enA, HIGH);
+  digitalWrite(enB, HIGH);
+  // Turn on motors
+  digitalWrite(in1, HIGH); //right motor
+  digitalWrite(in3, HIGH); //left motor
+  digitalWrite(in2, LOW); //right motor
+  digitalWrite(in4, LOW); //left motor
+
+  analogWrite(enB, max_speed);
+  analogWrite(enA, max_speed);
+  delay(20);
+}
+
+void pivot_c(int max_speed) {
+  digitalWrite(enA, HIGH);
+  digitalWrite(enB, HIGH);
+  // Turn on motors
+  digitalWrite(in1, LOW); //right motor
+  digitalWrite(in3, HIGH); //left motor
+  digitalWrite(in2, LOW); //right motor
+  digitalWrite(in4, LOW); //left motor
+
+  analogWrite(enB, max_speed);
+  analogWrite(enA, max_speed);
+  delay(20);
+
+}
+
+void pivot_cc(int max_speed) {
+  digitalWrite(enA, HIGH);
+  digitalWrite(enB, HIGH);
+  // Turn on motors
+  digitalWrite(in1, HIGH); //right motor
+  digitalWrite(in3, LOW); //left motor
+  digitalWrite(in2, LOW); //right motor
+  digitalWrite(in4, LOW); //left motor
+
+  analogWrite(enB, max_speed);
+  analogWrite(enA, max_speed);
+  delay(20);
+
+}
+
+void right_turn(int left_speed, int right_speed) {
+  //LEFT SPEED HAS TO BE SET HIGHER
+
+  digitalWrite(enA, HIGH);
+  digitalWrite(enB, HIGH);
+  // Turn on motors
+  digitalWrite(in1, HIGH); //right motor
+  digitalWrite(in3, HIGH); //left motor
+  digitalWrite(in2, LOW); //right motor
+  digitalWrite(in4, LOW); //left motor
+
+
+  analogWrite(enB, left_speed);
+  analogWrite(enA, right_speed);
+  delay(20);
+
+}
+
+void left_turn(int left_speed, int right_speed) {
+  //RIGHT SPEED HAS TO BE HIGHER
+  //Note: left motor is weak, so we need to have at least 50
+
+  digitalWrite(enA, HIGH);
+  digitalWrite(enB, HIGH);
+  // Turn on motors
+  digitalWrite(in1, HIGH); //right motor
+  digitalWrite(in3, HIGH); //left motor
+  digitalWrite(in2, LOW); //right motor
+  digitalWrite(in4, LOW); //left motor
+
+
+  analogWrite(enB, left_speed);
+  analogWrite(enA, right_speed);
+  delay(20);
+
+}
