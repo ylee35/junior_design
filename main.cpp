@@ -10,9 +10,18 @@ enum states{state1 , state2 , state3 , state4 , state5 , state6 , state7};
 // state 6. Follow the yellow lane until it senses the wall at the left
 // state 7. Turn left and return to the starting position
 enum states currState = state1;
-//String parsed;
+String parsed;
 
 BotMotions motions;
+
+bool bot1 = true;
+bool bot2 = false;
+
+bool bot1flash = false;
+bool bot1sent = false;
+
+bbool bot2flash = false;
+bool bot2setn = false;
 
 void setup() {
   Serial.begin(9600);
@@ -34,28 +43,21 @@ void loop() {
   client.endMessage();
 
   while (client.connected()) {
-    String *message;
-    bool receivedPls = receiveMessage(message); // might not be 
-    Serial.print("Parsed is ");
-    Serial.println(*message);
+    // String *message;
+    // bool receivedPls = receiveMessage(message); // might not be 
+    // Serial.print("Parsed is ");
+    // Serial.println(*message);
 
-    // int messageReceived = client.parseMessage();
-    // if (messageReceived) {
-    //   String message = client.readString();
+    int messageReceived = client.parseMessage();
+    if (messageReceived) {
+      String message = client.readString();
 
-    //   if (message.substring(0, 22) == "WebClient_4A9EDB0160D5") {
-    //     parsed = message.substring(23, messageReceived);
-    //     Serial.print("2parsed is ");
-    //     Serial.println(parsed);
-    //   }
-    // }
-    
-    if (sentOnce) {
-      String messageToTeam = "hi team";
-      sendMessage(messageToTeam);
+      if (message.substring(0, 22) == "WebClient_4A9EDB0160D5") {
+        parsed = message.substring(23, messageReceived);
+        Serial.print("2parsed is ");
+        Serial.println(parsed);
+      }
     }
-
-  }
 
   //////////////// REMOTELY COMMANDED BOT MOTIONS (TEMPORARY) /////////////////
 
@@ -67,38 +69,87 @@ void loop() {
       Bot 2 communicates to Bot 1 to move forward for five seconds. 
       Bot 1 receives the signal and moves forward for five seconds then stop
   */
-  // bot 1 
-  // digitalWrite(LED_BUILTIN, HIGH);
-  // delay(2000);
-  // digitalWrite(LED_BUILTIN, LOW);
+  
+  while (bot1) {
+      int messageReceived = client.parseMessage();
+      if (messageReceived) {
+        String message = client.readString();
 
-  // client.beginMessage(TYPE_TEXT);
-  // client.print("go");
-  // client.endMessage();
+        if (message.substring(0, 22) == "WebClient_4A9EDB0160D5") {
+          parsed = message.substring(23, messageReceived);
+          Serial.print("2parsed is ");
+          Serial.println(parsed);
+        }
+      }
+      
+      if (!bot1flash){
+        Serial.println("in bot 1");
+        digitalWrite(LED_BUILTIN, HIGH);
+        delay(2000);
+        digitalWrite(LED_BUILTIN, LOW);
+        bot1flash = true;
+      }
 
-  // if (parsed = "go"){
-  //   Serial.println("we can go");
-  //   motions.forward();
-  //   delay(5000);
-  //   motions.stop();
-  // }
 
+      if (!bot1sent){
+        client.beginMessage(TYPE_TEXT);
+        client.print("bot 2 can go");
+        client.endMessage();
+        bot1sent = true;
+      }
 
-  // // bot 2
-  // if (parsed = "go2"){
-  //   motions.forward();
-  //   delay(5000);
-  //   motions.stop();
+      if (parsed == "bot 1 can go NOW"){
+        Serial.println("we can go"); // testing 
+        motions.forward();
+        Serial.println("TEST: moving forward");
+        delay(5000);
+        motions.stop();
+        Serial.println ("TEST: stoppped");
+        bot1 = false; 
+        bot2 = true;
+      }
+    }
+
+    while (bot2) {
+      Serial.println("in bot 2");
+
+      int messageReceived = client.parseMessage();
+      if (messageReceived) {
+        String message = client.readString();
+
+        if (message.substring(0, 22) == "WebClient_4A9EDB0160D5") {
+          parsed = message.substring(23, messageReceived);
+          Serial.print("2parsed is ");
+          Serial.println(parsed);
+        }
+      }
+
+      if (parsed == "bot 2 can go from bot 1"){
+        motions.forward();
+        Serial.println("TEST: moving forward");
+
+        delay(5000);
+        Serial.println ("TEST: stoppped");
+        motions.stop();
+        
+        digitalWrite(LED_BUILTIN, HIGH);
+        delay(2000);
+        digitalWrite(LED_BUILTIN, LOW);
+
+        client.beginMessage(TYPE_TEXT);
+        client.print("bot 1 can go");
+        client.endMessage();
+      } 
+      bot2 = false;
+    }
+
     
-  //   digitalWrite(LED_BUILTIN, HIGH);
-  //   delay(2000);
-  //   digitalWrite(LED_BUILTIN, LOW);
+    if (sentOnce) {
+      String messageToTeam = "hi team";
+      sendMessage(messageToTeam);
+    }
 
-  //   client.beginMessage(TYPE_TEXT);
-  //   client.print("move forward for five seconds");
-  //   client.endMessage();
-  // }
-
+  }
 
   ///////////////////////////////////////////////////////////////////////////
   
