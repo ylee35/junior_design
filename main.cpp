@@ -14,14 +14,12 @@ String parsed;
 
 BotMotions motions;
 
-bool bot1 = true;
-bool bot2 = false;
+bool bot1 = false;
+bool bot2 = true;
 
 bool bot1flash = false;
 bool bot1sent = false;
 
-bbool bot2flash = false;
-bool bot2setn = false;
 
 void setup() {
   Serial.begin(9600);
@@ -74,8 +72,8 @@ void loop() {
       int messageReceived = client.parseMessage();
       if (messageReceived) {
         String message = client.readString();
-
-        if (message.substring(0, 22) == "WebClient_4A9EDB0160D5") {
+        // Partner team is 828BD9E1B7C7
+        if (message.substring(0, 22) == "WebClient_828BD9E1B7C7") {
           parsed = message.substring(23, messageReceived);
           Serial.print("2parsed is ");
           Serial.println(parsed);
@@ -93,12 +91,12 @@ void loop() {
 
       if (!bot1sent){
         client.beginMessage(TYPE_TEXT);
-        client.print("bot 2 can go");
+        client.print("2"); //bot 2 can go
         client.endMessage();
         bot1sent = true;
       }
 
-      if (parsed == "bot 1 can go NOW"){
+      if (parsed == "bot 1 can go from bot 2"){
         Serial.println("we can go"); // testing 
         motions.forward();
         Serial.println("TEST: moving forward");
@@ -117,11 +115,26 @@ void loop() {
       if (messageReceived) {
         String message = client.readString();
 
-        if (message.substring(0, 22) == "WebClient_4A9EDB0160D5") {
-          parsed = message.substring(23, messageReceived);
-          Serial.print("2parsed is ");
-          Serial.println(parsed);
+        for (int i = 0 ; i <= (messageReceived - 12); i++){
+          if (message.substring(i , i + 12) == "828BD9E1B7C7"){
+            for (int j = i + 12; j <= messageReceived; j++){
+              if (message.substring(j , j + 1) == "."){
+                parsed = message.substring(j + 1 , messageReceived);
+                Serial.print("2parsed is ");
+                Serial.println(parsed);
+                break;
+              }
+            }
+            break;
+          }
+          
         }
+
+        // if (message.substring(0, 22) == "WebClient_828BD9E1B7C7") {
+        //   parsed = message.substring(23, messageReceived);
+        //   Serial.print("2parsed is ");
+        //   Serial.println(parsed);
+        // }
       }
 
       if (parsed == "bot 2 can go from bot 1"){
@@ -137,10 +150,11 @@ void loop() {
         digitalWrite(LED_BUILTIN, LOW);
 
         client.beginMessage(TYPE_TEXT);
-        client.print("bot 1 can go");
+        client.print("2"); //bot 1 can go
         client.endMessage();
+        bot2 = false;
       } 
-      bot2 = false;
+
     }
 
     
