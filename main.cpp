@@ -14,8 +14,8 @@ String parsed;
 
 BotMotions motions;
 
-bool bot1 = false;
-bool bot2 = true;
+bool bot1 = true;
+bool bot2 = false;
 
 bool bot1flash = false;
 bool bot1sent = false;
@@ -72,12 +72,22 @@ void loop() {
       int messageReceived = client.parseMessage();
       if (messageReceived) {
         String message = client.readString();
-        // Partner team is 828BD9E1B7C7
-        if (message.substring(0, 22) == "WebClient_828BD9E1B7C7") {
-          parsed = message.substring(23, messageReceived);
-          Serial.print("2parsed is ");
-          Serial.println(parsed);
+
+        for (int i = 0 ; i <= (messageReceived - 12); i++){
+          if (message.substring(i , i + 12) == "828BD9E1B7C7"){
+            for (int j = i + 12; j <= messageReceived; j++){
+              if (message.substring(j , j + 1) == "."){
+                parsed = message.substring(j + 1 , messageReceived);
+                Serial.print("2parsed is ");
+                Serial.println(parsed);
+                break;
+              }
+            }
+            break;
+          }
+          
         }
+
       }
       
       if (!bot1flash){
@@ -109,8 +119,6 @@ void loop() {
     }
 
     while (bot2) {
-      Serial.println("in bot 2");
-
       int messageReceived = client.parseMessage();
       if (messageReceived) {
         String message = client.readString();
@@ -130,11 +138,6 @@ void loop() {
           
         }
 
-        // if (message.substring(0, 22) == "WebClient_828BD9E1B7C7") {
-        //   parsed = message.substring(23, messageReceived);
-        //   Serial.print("2parsed is ");
-        //   Serial.println(parsed);
-        // }
       }
 
       if (parsed == "bot 2 can go from bot 1"){
