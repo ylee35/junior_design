@@ -13,3 +13,5 @@ String clientID = "4A9EDB0160D5";  // clientID
 int status = WL_IDLE_STATUS; // client status
 int count = 0; // idle counter
 //-----------------------------------------------------------------------------
+
+bool sentOnce = 1;

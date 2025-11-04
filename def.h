@@ -31,4 +31,25 @@ extern int count; // idle counter
 #define BLUE_INDEX 2 
 
 //-----------------------------------------------------------------------------
+
+//------------------------- Motor Control -------------------------------------
+// Motor A connections
+#define enA 9
+#define in1 10
+#define in2 11
+// Motor B connections
+#define enB 3
+#define in3 5
+#define in4 6
+
+//-----------------------------------------------------------------------------
+
+
+//----------------------- Server Comms ----------------------------------------
+extern bool sentOnce;
+
+
 #endif
+
+
+// push infrared LED and detecotr closeer and use bigger resistor val
