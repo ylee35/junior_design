@@ -14,4 +14,9 @@ int status = WL_IDLE_STATUS; // client status
 int count = 0; // idle counter
 //-----------------------------------------------------------------------------
 
+CircularBuffer<float, 10> redBuffer;
+CircularBuffer<float, 10> blueBuffer;
+
 bool sentOnce = 1;
+
+// battery ground is thicc grey

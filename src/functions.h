@@ -10,6 +10,9 @@ void wifiSetup();
 void sendMessage(String messageToTeam);
 String receiveMessage();
 
+float calculateMedian(int arr[], int size);
+int colorMedian();
+
 class BotMotions {
     public: 
         void directionControl();
