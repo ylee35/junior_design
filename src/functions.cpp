@@ -1,4 +1,36 @@
+/*
+ *      functions.cpp
+ * 
+ *      This file contains function definitions for all helper functions used. 
+ * 
+*/
+
 #include "functions.h"
+
+void setPinModes() {
+    /* Color Detection and Object Detection I/O */
+    pinMode(RED_LED , OUTPUT);
+    pinMode(BLUE_LED, OUTPUT);
+    pinMode(IR_LED, OUTPUT);
+    pinMode(PHOTO_TRANS_1, INPUT);
+    pinMode(PHOTO_TRANS_2 , INPUT);
+
+    /* Motor Control I/O */
+    pinMode(enA, OUTPUT);
+    pinMode(enB, OUTPUT);
+    pinMode(in1, OUTPUT);
+    pinMode(in2, OUTPUT);
+    pinMode(in3, OUTPUT);
+    pinMode(in4, OUTPUT);
+
+    /* Turn off motors - Initial state */ 
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, LOW);
+    digitalWrite(in3, LOW);
+    digitalWrite(in4, LOW);
+    digitalWrite(enA, LOW);
+    digitalWrite(enB, LOW);
+}
 
 String receiveMessage() {
     int messageReceived = client.parseMessage();
@@ -34,38 +66,20 @@ void sendMessage(String messageToTeam){
     sentOnce = false;
 }
 
-int colorSensed() {
+int *colorSensed() {
+    redBuffer1.clear();
+    blueBuffer1.clear();
 
-
-    //  /* check red */
-    // // turn red LED on, yellow off
-    // digitalWrite(RED_LED, HIGH);
-    // // read from sensor
-    // float vout1 = analogRead(PHOTO_TRANS);
-    // Serial.print("red led is ");
-    // Serial.println(vout1);
-    // delay(40);
-
-    // /* check blue */
-    // // turn red off, blue on 
-    // digitalWrite(RED_LED , LOW);
-    // digitalWrite(BLUE_LED , HIGH);
-
-    // // read from sensor
-    // float vout2 = analogRead(PHOTO_TRANS);
-    // Serial.print("blue led is: ");
-    // Serial.println(vout2);
-    // delay(40);
-
-    // digitalWrite(BLUE_LED, LOW);
-
-    redBuffer.clear();
-    blueBuffer.clear();
+    redBuffer2.clear();
+    blueBuffer2.clear();
 
     for (int i = 0; i < 10; i++) {
         digitalWrite(RED_LED, HIGH);
-        float red = analogRead(PHOTO_TRANS);
-        redBuffer.push(red);
+        float red1 = analogRead(PHOTO_TRANS_1);
+        float red2 = analogRead(PHOTO_TRANS_2);
+        redBuffer1.push(red1);
+        redBuffer2.push(red2);
+
         delay(40);
 
         // Serial.print(red);
@@ -74,8 +88,10 @@ int colorSensed() {
         digitalWrite(RED_LED , LOW);
         digitalWrite(BLUE_LED , HIGH);
 
-        float blue = analogRead(PHOTO_TRANS);
-        blueBuffer.push(blue);
+        float blue1 = analogRead(PHOTO_TRANS_1);
+        float blue2 = analogRead(PHOTO_TRANS_2);
+        blueBuffer1.push(blue1);
+        blueBuffer2.push(blue2);
 
         digitalWrite(BLUE_LED , LOW);
         // Serial.print(blue);
@@ -83,24 +99,42 @@ int colorSensed() {
         delay(40);
     }
 
-    float redSum = 0;
-    float blueSum = 0;
+    float redSum1 = 0;
+    float redSum2 = 0;
+    float blueSum1 = 0;
+    float blueSum2 = 0;
+    
 
-    for (int i = 0; i < redBuffer.size(); i++) {
-        redSum += redBuffer[i];
-        blueSum += blueBuffer[i];
+    for (int i = 0; i < redBuffer1.size(); i++) {
+        redSum1 += redBuffer1[i];
+        redSum2 += redBuffer2[i];
+        blueSum1 += blueBuffer1[i];
+        blueSum2 += blueBuffer2[i];
     }
 
-    float redAverage = redSum / redBuffer.size();
-    float blueAverage = blueSum / blueBuffer.size();
+    float redAverage1 = redSum1 / redBuffer1.size();
+    float redAverage2 = redSum2 / redBuffer2.size();
+    float blueAverage1 = blueSum1 / blueBuffer1.size();
+    float blueAverage2 = blueSum2 / blueBuffer2.size();
 
 
-    Serial.print(redAverage);
+    Serial.print(redAverage1);
+    Serial.print(",");
+    Serial.print(redAverage2);
     Serial.print(",");
 
-    Serial.print(blueAverage);
-    Serial.println("");
+    Serial.print(blueAverage1);
+    Serial.print(",");
+    Serial.println(blueAverage2);
 
+    int *colorIndices = new int[2];
+    colorIndices[0] = colorIndex(redAverage1, blueAverage1);
+    colorIndices[1] = colorIndex(redAverage2, blueAverage2);
+
+    return colorIndices;
+}
+
+int colorIndex(int redAverage, int blueAverage) {
     if ((redAverage > 11 && redAverage < 16) && (blueAverage > 23 && blueAverage < 29)) {
         return RED_INDEX;
     } else if ((redAverage > 6 && redAverage < 11) && (blueAverage > 17 && blueAverage < 19)) {
@@ -112,68 +146,7 @@ int colorSensed() {
     } else {
         return WRONG_INDEX;
     }
-
-    
-/*
-    	red	blue
-red	    11-16	23-29
-yellow	40+	52+
-blue	6-11	17-19
-black	0-2	4-9
-
-*/
-  
 }
-
-// float calculateMedian(int arr[], int size) {
-//   // Sort the array (using bubble sort for simplicity)
-//   for (int i = 0; i < size - 1; i++) {
-//     for (int j = 0; j < size - i - 1; j++) {
-//       if (arr[j] > arr[j + 1]) {
-//         int temp = arr[j];
-//         arr[j] = arr[j + 1];
-//         arr[j + 1] = temp;
-//       }
-//     }
-//   }
-
-//   // Calculate the median
-//   if (size % 2 == 0) { // Even number of elements
-//     return (float)(arr[size / 2 - 1] + arr[size / 2]) / 2.0;
-//   } else { // Odd number of elements
-//     return (float)arr[size / 2];
-//   }
-// }
-
-
-// int colorMedian() {
-//     int *colors = colorSensed();
-//     int ambientBuffer[50];
-//     int redBuffer[50];
-//     int blueBuffer[50];
-//     int currentIndex = 0;
-
-//     for (int i = 0; i < 50; i++) {
-//         if (currentIndex < 50) {
-//             ambientBuffer[currentIndex] = colors[0];
-//             redBuffer[currentIndex] = colors[1];
-//             blueBuffer[currentIndex] = colors[2];
-//             currentIndex++;
-//         }
-//     }
-
-//     int ambientMedian = calculateMedian(ambientBuffer, 50);
-//     int redMedian = calculateMedian(redBuffer, 50);
-//     int blueMedian = calculateMedian(blueBuffer, 50);
-
-//     int redIsolated = redMedian - ambientMedian; // use mean/median
-//     int blueIsolated = blueMedian - ambientMedian;
-
-//     Serial.print(redIsolated);
-//     Serial.print(",");
-//     Serial.println(blueIsolated);
-
-// }
 
 // bool objectDetected() {
 
@@ -228,7 +201,7 @@ black	0-2	4-9
 
 
 void BotMotions::stop() {
-    // Turn off motors
+    // turn off motors
     digitalWrite(in1, LOW);
     digitalWrite(in2, LOW);
     digitalWrite(in3, LOW);
@@ -238,14 +211,15 @@ void BotMotions::stop() {
 void BotMotions::backward() {
     digitalWrite(enA, HIGH);
     digitalWrite(enB, HIGH);
-    // Turn on motors
-    digitalWrite(in1, LOW); //right motor
-    digitalWrite(in3, LOW); //left motor
-    digitalWrite(in2, HIGH); //right motor
-    digitalWrite(in4, HIGH); //left motor
 
-    analogWrite(enB, max_speed); //left motor enable
-    analogWrite(enA, max_speed); //right motor enable
+    // turn on motors
+    digitalWrite(in1, LOW); // right motor
+    digitalWrite(in3, LOW); // left motor
+    digitalWrite(in2, HIGH); // right motor
+    digitalWrite(in4, HIGH); // left motor
+
+    analogWrite(enB, max_speed); // left motor enable
+    analogWrite(enA, max_speed); // right motor enable
     delay(20);
 }
 
@@ -253,11 +227,12 @@ void BotMotions::forward() {
     Serial.println("in forward");
     digitalWrite(enA, HIGH);
     digitalWrite(enB, HIGH);
-    // Turn on motors
-    digitalWrite(in1, HIGH); //right motor
-    digitalWrite(in3, HIGH); //left motor
-    digitalWrite(in2, LOW); //right motor
-    digitalWrite(in4, LOW); //left motor
+
+    // turn on motors
+    digitalWrite(in1, HIGH); // right motor
+    digitalWrite(in3, HIGH); // left motor
+    digitalWrite(in2, LOW); // right motor
+    digitalWrite(in4, LOW); // left motor
 
     analogWrite(enB, max_speed);
     analogWrite(enA, max_speed);
@@ -267,49 +242,47 @@ void BotMotions::forward() {
 void BotMotions::pivot_c() {
     digitalWrite(enA, HIGH);
     digitalWrite(enB, HIGH);
-    // Turn on motors
-    digitalWrite(in1, LOW); //right motor
-    digitalWrite(in3, HIGH); //left motor
-    digitalWrite(in2, LOW); //right motor
-    digitalWrite(in4, LOW); //left motor
+
+    // turn on motors
+    digitalWrite(in1, LOW); // right motor
+    digitalWrite(in3, HIGH); // left motor
+    digitalWrite(in2, LOW); // right motor
+    digitalWrite(in4, LOW); // left motor
 
     analogWrite(enB, max_speed);
     analogWrite(enA, max_speed);
     delay(20);
-
 }
 
 void BotMotions::pivot_cc() {
     digitalWrite(enA, HIGH);
     digitalWrite(enB, HIGH);
-    // Turn on motors
-    digitalWrite(in1, HIGH); //right motor
-    digitalWrite(in3, LOW); //left motor
-    digitalWrite(in2, LOW); //right motor
-    digitalWrite(in4, LOW); //left motor
+
+    // turn on motors
+    digitalWrite(in1, HIGH); // right motor
+    digitalWrite(in3, LOW); // left motor
+    digitalWrite(in2, LOW); // right motor
+    digitalWrite(in4, LOW); // left motor
 
     analogWrite(enB, max_speed);
     analogWrite(enA, max_speed);
     delay(20);
-
 }
 
 void BotMotions::right_turn() {
-    //LEFT SPEED HAS TO BE SET HIGHER
-
+    // LEFT SPEED HAS TO BE HIGHER 
     digitalWrite(enA, HIGH);
     digitalWrite(enB, HIGH);
-    // Turn on motors
-    digitalWrite(in1, HIGH); //right motor
-    digitalWrite(in3, HIGH); //left motor
-    digitalWrite(in2, LOW); //right motor
-    digitalWrite(in4, LOW); //left motor
 
+    // turn on motors
+    digitalWrite(in1, HIGH); // right motor
+    digitalWrite(in3, HIGH); // left motor
+    digitalWrite(in2, LOW); // right motor
+    digitalWrite(in4, LOW); // left motor
 
     analogWrite(enB, left_speed);
     analogWrite(enA, right_speed);
     delay(20);
-
 }
 
 void BotMotions::left_turn() {
@@ -318,17 +291,16 @@ void BotMotions::left_turn() {
 
     digitalWrite(enA, HIGH);
     digitalWrite(enB, HIGH);
-    // Turn on motors
-    digitalWrite(in1, HIGH); //right motor
-    digitalWrite(in3, HIGH); //left motor
-    digitalWrite(in2, LOW); //right motor
-    digitalWrite(in4, LOW); //left motor
 
+    // turn on motors
+    digitalWrite(in1, HIGH); // right motor
+    digitalWrite(in3, HIGH); // left motor
+    digitalWrite(in2, LOW); // right motor
+    digitalWrite(in4, LOW); // left motor
 
     analogWrite(enB, left_speed);
     analogWrite(enA, right_speed);
     delay(20);
-
 }
 
 void BotMotions::set_speeds(int left_speed, int right_speed, int max_speed) {
@@ -337,47 +309,21 @@ void BotMotions::set_speeds(int left_speed, int right_speed, int max_speed) {
     this->max_speed = max_speed;
 }
 
-void setPinModes() {
-  /* Color Detection and Object Detection I/O */
-  pinMode(RED_LED , OUTPUT);
-  pinMode(BLUE_LED, OUTPUT);
-  pinMode(IR_LED, OUTPUT);
-  pinMode(PHOTO_TRANS, INPUT);
-  pinMode(PHOTO_DETECTOR , INPUT);
-
-  /* Motor Control I/O */
-  pinMode(enA, OUTPUT);
-  pinMode(enB, OUTPUT);
-  pinMode(in1, OUTPUT);
-  pinMode(in2, OUTPUT);
-  pinMode(in3, OUTPUT);
-  pinMode(in4, OUTPUT);
-
-  /* Turn off motors - Initial state */ 
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, LOW);
-  digitalWrite(enA, LOW);
-  digitalWrite(enB, LOW);
-}
-
 void wifiSetup() {
-  while (status != WL_CONNECTED) {
-    Serial.print("Attempting to connect to Network named: ");
-    Serial.println(ssid); // print the network name (SSID);
+    while (status != WL_CONNECTED) {
+        Serial.print("Attempting to connect to Network named: ");
+        Serial.println(ssid); // print the network name (SSID);
 
-    // Connect to WPA/WPA2 network:
-    status = WiFi.begin(ssid, pass);
-  }
+        // connect to WPA/WPA2 network:
+        status = WiFi.begin(ssid, pass);
+    }
 
-  // print the SSID of the network you're attached to:
-  Serial.print("SSID: ");
-  Serial.println(WiFi.SSID());
+    // print the SSID of the network you're attached to:
+    Serial.print("SSID: ");
+    Serial.println(WiFi.SSID());
 
-  // print your WiFi shield's IP address:
-  IPAddress ip = WiFi.localIP();
-  Serial.print("IP Address: ");
-  Serial.println(ip);
+    // print your WiFi shield's IP address:
+    IPAddress ip = WiFi.localIP();
+    Serial.print("IP Address: ");
+    Serial.println(ip);
 }
-//1000 for red, 700 for blue

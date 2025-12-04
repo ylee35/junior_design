@@ -1,3 +1,13 @@
+/*
+ *      def.h
+ * 
+ *      This file contains includes to the libraries we use and declarations of
+ *      the WiFi setting parameters. It also has definitions for pin connections, 
+ *      color indices, and buffers for color and object sensing, as well as pin connections
+ *      for the motors. 
+ * 
+*/
+
 #include <Arduino.h>
 #include <ArduinoHttpClient.h>
 #include <WiFiNINA.h>
@@ -19,14 +29,14 @@ extern String clientID;  // clientID
 extern int status; // client status
 extern int count; // idle counter
 //-----------------------------------------------------------------------------
+
 //------------------------- Color Sensor --------------------------------------
-#define RED_LED 12 // CHANGE
+#define RED_LED 12 
 #define BLUE_LED 13
 
-
 #define IR_LED 8
-#define PHOTO_TRANS A2
-#define PHOTO_DETECTOR A3
+#define PHOTO_TRANS_1 A2
+#define PHOTO_TRANS_2 A3
 
 #define RED_INDEX 0
 #define YELLOW_INDEX 1
@@ -34,10 +44,11 @@ extern int count; // idle counter
 #define BLACK_INDEX 3
 #define WRONG_INDEX 4
 
-extern CircularBuffer<float, 10> redBuffer;
-extern CircularBuffer<float, 10> blueBuffer;
+extern CircularBuffer<float, 10> redBuffer1;
+extern CircularBuffer<float, 10> redBuffer2;
 
-
+extern CircularBuffer<float, 10> blueBuffer1;
+extern CircularBuffer<float, 10> blueBuffer2;
 //-----------------------------------------------------------------------------
 
 //------------------------- Motor Control -------------------------------------
@@ -49,15 +60,10 @@ extern CircularBuffer<float, 10> blueBuffer;
 #define enB 3
 #define in3 5
 #define in4 6
-
 //-----------------------------------------------------------------------------
 
 
 //----------------------- Server Comms ----------------------------------------
 extern bool sentOnce;
 
-
 #endif
-
-
-// push infrared LED and detecotr closeer and use bigger resistor val

@@ -25,12 +25,7 @@ void setup() {
     Serial.begin(9600);
     wifiSetup();
     setPinModes();
-    
-    //delete later
-    pinMode(LED_BUILTIN , OUTPUT);
 }
-
-int x = 0;
 
 void loop() {
 //    client.begin();
@@ -50,8 +45,13 @@ void loop() {
         
         // Serial.print(x);
         // Serial.print(",");
-        int color = colorSensed();
-        Serial.println(color);
+        int* colorIndices = colorSensed();
+        Serial.print(colorIndices[0]);
+        Serial.print(colorIndices[1]);
+
+        delete[] colorIndices;
+        colorIndices = nullptr;
+        
         // digitalWrite(RED_LED, HIGH);
         // digitalWrite(BLUE_LED, HIGH);
         // int *colors = colorSensed();

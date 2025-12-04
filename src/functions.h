@@ -1,17 +1,24 @@
+/*
+ *      functions.h
+ * 
+ *      This file contains function declarations for all helper functions used. 
+ *      It also defines the BotMotions class. 
+ * 
+*/
+
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
 #include "def.h"
 
-int colorSensed();
+int *colorSensed();
+int colorIndex(int redAverage, int blueAverage);
 bool objectDetected();
 void setPinModes();
 void wifiSetup();
 void sendMessage(String messageToTeam);
 String receiveMessage();
 
-float calculateMedian(int arr[], int size);
-int colorMedian();
 
 class BotMotions {
     public: 

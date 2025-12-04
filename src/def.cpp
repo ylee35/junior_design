@@ -1,3 +1,11 @@
+/*
+ *      def.cpp
+ * 
+ *      This file contains definitions for the WiFi parameters and declarations
+ *      for the bfufers used in color sensing. 
+ * 
+*/
+
 #include "def.h"
 
 //------------------------- WiFi Settings -------------------------------------
@@ -14,8 +22,11 @@ int status = WL_IDLE_STATUS; // client status
 int count = 0; // idle counter
 //-----------------------------------------------------------------------------
 
-CircularBuffer<float, 10> redBuffer;
-CircularBuffer<float, 10> blueBuffer;
+CircularBuffer<float, 10> redBuffer1;
+CircularBuffer<float, 10> redBuffer2;
+
+CircularBuffer<float, 10> blueBuffer1;
+CircularBuffer<float, 10> blueBuffer2;
 
 bool sentOnce = 1;
 
