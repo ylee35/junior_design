@@ -28,6 +28,8 @@ CircularBuffer<float, 10> redBuffer2;
 CircularBuffer<float, 10> blueBuffer1;
 CircularBuffer<float, 10> blueBuffer2;
 
+CircularBuffer<float, 10> photoBuffer;
+
 bool sentOnce = 1;
 
 // battery ground is thicc grey

@@ -12,12 +12,15 @@
 #include "def.h"
 
 int *colorSensed();
-int colorIndex(int redAverage, int blueAverage);
+int colorIndex1(int redAverage, int blueAverage);
+int colorIndex2(int redAverage, int blueAverage);
 bool objectDetected();
 void setPinModes();
 void wifiSetup();
 void sendMessage(String messageToTeam);
 String receiveMessage();
+
+
 
 
 class BotMotions {

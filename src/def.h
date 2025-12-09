@@ -35,8 +35,9 @@ extern int count; // idle counter
 #define BLUE_LED 13
 
 #define IR_LED 8
-#define PHOTO_TRANS_1 A2
-#define PHOTO_TRANS_2 A3
+#define PHOTO_TRANS_1 A2 // RIGHT
+#define PHOTO_TRANS_2 A3 // LEFT
+#define PHOTO_DETECTOR A4
 
 #define RED_INDEX 0
 #define YELLOW_INDEX 1
@@ -44,11 +45,17 @@ extern int count; // idle counter
 #define BLACK_INDEX 3
 #define WRONG_INDEX 4
 
+#define RIGHT 0
+#define LEFT 1
+
 extern CircularBuffer<float, 10> redBuffer1;
 extern CircularBuffer<float, 10> redBuffer2;
 
 extern CircularBuffer<float, 10> blueBuffer1;
 extern CircularBuffer<float, 10> blueBuffer2;
+
+extern CircularBuffer<float, 10> photoBuffer;
+
 //-----------------------------------------------------------------------------
 
 //------------------------- Motor Control -------------------------------------

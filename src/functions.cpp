@@ -7,15 +7,18 @@
 
 #include "functions.h"
 
+int initialReading;
+bool initialDetection;
+
 void setPinModes() {
-    /* Color Detection and Object Detection I/O */
+    // Color Detection and Object Detection I/O 
     pinMode(RED_LED , OUTPUT);
     pinMode(BLUE_LED, OUTPUT);
     pinMode(IR_LED, OUTPUT);
     pinMode(PHOTO_TRANS_1, INPUT);
     pinMode(PHOTO_TRANS_2 , INPUT);
 
-    /* Motor Control I/O */
+    // Motor Control I/O 
     pinMode(enA, OUTPUT);
     pinMode(enB, OUTPUT);
     pinMode(in1, OUTPUT);
@@ -23,7 +26,7 @@ void setPinModes() {
     pinMode(in3, OUTPUT);
     pinMode(in4, OUTPUT);
 
-    /* Turn off motors - Initial state */ 
+    // Turn off motors - Initial state 
     digitalWrite(in1, LOW);
     digitalWrite(in2, LOW);
     digitalWrite(in3, LOW);
@@ -34,6 +37,7 @@ void setPinModes() {
 
 String receiveMessage() {
     int messageReceived = client.parseMessage();
+
     while (!messageReceived) {    
         messageReceived = client.parseMessage();
     }
@@ -41,13 +45,15 @@ String receiveMessage() {
     String parsed;
     if (messageReceived) {
         String message = client.readString();
+
+        // parsing through the message to find our ID 
         for (int i = 0 ; i <= (messageReceived - 12); i++){
-        if (message.substring(i , i + 12) == "828BD9E1B7C7"){
+        if (message.substring(i , i + 12) == "828BD9E1B7C7"){ 
             for (int j = i + 12; j <= messageReceived; j++){
-            if (message.substring(j , j + 1) == "."){
-                parsed = message.substring(j + 1 , messageReceived);
-                break;
-            }
+                if (message.substring(j , j + 1) == "."){
+                    parsed = message.substring(j + 1 , messageReceived);
+                    break;
+                }
             }
             break;
         }
@@ -73,6 +79,8 @@ int *colorSensed() {
     redBuffer2.clear();
     blueBuffer2.clear();
 
+    // taking 10 phototransistor values for each color and each sensor, then 
+    // and pushing them to the corresponding buffer
     for (int i = 0; i < 10; i++) {
         digitalWrite(RED_LED, HIGH);
         float red1 = analogRead(PHOTO_TRANS_1);
@@ -82,7 +90,8 @@ int *colorSensed() {
 
         delay(40);
 
-        // Serial.print(red);
+        // Serial.print("red raw: ");
+        // Serial.print(red1);
         // Serial.print(", ");
 
         digitalWrite(RED_LED , LOW);
@@ -104,7 +113,7 @@ int *colorSensed() {
     float blueSum1 = 0;
     float blueSum2 = 0;
     
-
+    // finding the average of the 10 values
     for (int i = 0; i < redBuffer1.size(); i++) {
         redSum1 += redBuffer1[i];
         redSum2 += redBuffer2[i];
@@ -117,7 +126,7 @@ int *colorSensed() {
     float blueAverage1 = blueSum1 / blueBuffer1.size();
     float blueAverage2 = blueSum2 / blueBuffer2.size();
 
-
+    // REMOVE
     Serial.print(redAverage1);
     Serial.print(",");
     Serial.print(redAverage2);
@@ -126,78 +135,96 @@ int *colorSensed() {
     Serial.print(blueAverage1);
     Serial.print(",");
     Serial.println(blueAverage2);
+    // Serial.print(":      ");
 
     int *colorIndices = new int[2];
-    colorIndices[0] = colorIndex(redAverage1, blueAverage1);
-    colorIndices[1] = colorIndex(redAverage2, blueAverage2);
+
+    // passing the red and blue average values for each sensor to a helper 
+    // function to get what color it is 
+    colorIndices[0] = colorIndex1(redAverage1, blueAverage1);
+    colorIndices[1] = colorIndex2(redAverage2, blueAverage2);
 
     return colorIndices;
 }
 
-int colorIndex(int redAverage, int blueAverage) {
-    if ((redAverage > 11 && redAverage < 16) && (blueAverage > 23 && blueAverage < 29)) {
+int colorIndex1(int redAverage, int blueAverage) { // just change everytime
+    if ((redAverage >= 296 && redAverage <= 305) && (blueAverage >= 359 && blueAverage <= 365)) {
         return RED_INDEX;
-    } else if ((redAverage > 6 && redAverage < 11) && (blueAverage > 17 && blueAverage < 19)) {
+    } else if ((redAverage >= 260 && redAverage <= 274) && (blueAverage >= 345 && blueAverage <= 353)) {
         return BLUE_INDEX;
-    } else if ((redAverage > 40) && (blueAverage > 52)) {
+    } else if ((redAverage >= 389) && (blueAverage >= 438)) {
         return YELLOW_INDEX;
-    } else if ((redAverage > 0 && redAverage < 2) && (blueAverage > 4 && blueAverage < 9)) {
+    } else if ((redAverage >= 237 && redAverage <= 253) && (blueAverage >= 291 && blueAverage <= 302)) {
         return BLACK_INDEX;
     } else {
         return WRONG_INDEX;
     }
 }
 
-// bool objectDetected() {
+int colorIndex2(int redAverage, int blueAverage) {
+    if ((redAverage >= 41 && redAverage <= 44) && (blueAverage >= 28 && blueAverage <= 31)) {
+        return RED_INDEX;
+    } else if ((redAverage >= 30 && redAverage <= 33) && (blueAverage >= 52 && blueAverage <= 55)) {
+        return BLUE_INDEX;
+    } else if ((redAverage >= 82) && (blueAverage >= 44)) {
+        return YELLOW_INDEX;
+    } else if ((redAverage >= 23 && redAverage <= 26) && (blueAverage >= 22 && blueAverage <= 24)) {
+        return BLACK_INDEX;
+    } else {
+        return WRONG_INDEX;
+    }
+}
 
-//     if (!initialDetection) {
+bool objectDetected() {
 
-//         digitalWrite(IR_LED, HIGH);
+    if (!initialDetection) {
 
-//         photoBuffer.clear();
+        digitalWrite(IR_LED, HIGH);
 
-//         for (int i = 0; i < photoBuffer.capacity; i++) {
-//             int reading = analogRead(PHOTO_DETECTOR);
+        photoBuffer.clear();
 
-//             photoBuffer.push(reading);
-//             delay(2);
-//         }
+        for (int i = 0; i < photoBuffer.capacity; i++) {
+            int reading = analogRead(PHOTO_DETECTOR);
 
-//         //baseline
-//         long sum = 0;
-//         for (size_t i = 0; i < photoBuffer.size(); i++) {
-//             sum += photoBuffer[i];
-//         }
-//         initialReading = sum / photoBuffer.size();
+            photoBuffer.push(reading);
+            delay(2);
+        }
 
-//         Serial.print("Baseline: ");
-//         Serial.println(initialReading);
+        //baseline
+        long sum = 0;
+        for (size_t i = 0; i < photoBuffer.size(); i++) {
+            sum += photoBuffer[i];
+        }
+        initialReading = sum / photoBuffer.size();
 
-//         initialDetection = true;
-//     }
-//     digitalWrite(IR_LED, HIGH);
+        Serial.print("Baseline: ");
+        Serial.println(initialReading);
 
-//     float reading = analogRead(PHOTO_DETECTOR);
+        initialDetection = true;
+    }
+    digitalWrite(IR_LED, HIGH);
 
-//     photoBuffer.push(reading);
+    float reading = analogRead(PHOTO_DETECTOR);
 
-//     float sum = 0;
-//     for (size_t i = 0; i < photoBuffer.size(); i++) {
-//         sum += photoBuffer[i];
-//     }
-//     float average = sum / photoBuffer.size();
+    photoBuffer.push(reading);
 
-//     Serial.print("Raw photodetector: ");
-//     Serial.print(reading);
-//     Serial.print(" | Filtered average: ");
-//     Serial.println(average);
+    float sum = 0;
+    for (size_t i = 0; i < photoBuffer.size(); i++) {
+        sum += photoBuffer[i];
+    }
+    float average = sum / photoBuffer.size();
 
-//     if ((average - initialReading) > 30) {
-//         return true;
-//     }
+    Serial.print("Raw photodetector: ");
+    Serial.print(reading);
+    Serial.print(" | Filtered average: ");
+    Serial.println(average);
 
-//     return false;
-// }
+    if ((average - initialReading) > 30) {
+        return true;
+    }
+
+    return false;
+}
 
 
 void BotMotions::stop() {
