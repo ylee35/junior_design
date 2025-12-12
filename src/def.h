@@ -39,11 +39,11 @@ extern int count; // idle counter
 #define PHOTO_TRANS_2 A3 // LEFT
 #define PHOTO_DETECTOR A4
 
-#define RED_INDEX 0
-#define YELLOW_INDEX 1
-#define BLUE_INDEX 2 
-#define BLACK_INDEX 3
-#define WRONG_INDEX 4
+#define RED 0
+#define YELLOW 1
+#define BLUE 2 
+#define BLACK 3
+#define WRONG 4
 
 #define RIGHT 0
 #define LEFT 1

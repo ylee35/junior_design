@@ -149,29 +149,29 @@ int *colorSensed() {
 
 int colorIndex1(int redAverage, int blueAverage) { // just change everytime
     if ((redAverage >= 296 && redAverage <= 305) && (blueAverage >= 359 && blueAverage <= 365)) {
-        return RED_INDEX;
+        return RED;
     } else if ((redAverage >= 260 && redAverage <= 274) && (blueAverage >= 345 && blueAverage <= 353)) {
-        return BLUE_INDEX;
+        return BLUE;
     } else if ((redAverage >= 389) && (blueAverage >= 438)) {
-        return YELLOW_INDEX;
+        return YELLOW;
     } else if ((redAverage >= 237 && redAverage <= 253) && (blueAverage >= 291 && blueAverage <= 302)) {
-        return BLACK_INDEX;
+        return BLACK;
     } else {
-        return WRONG_INDEX;
+        return WRONG;
     }
 }
 
 int colorIndex2(int redAverage, int blueAverage) {
     if ((redAverage >= 41 && redAverage <= 44) && (blueAverage >= 28 && blueAverage <= 31)) {
-        return RED_INDEX;
+        return RED;
     } else if ((redAverage >= 30 && redAverage <= 33) && (blueAverage >= 52 && blueAverage <= 55)) {
-        return BLUE_INDEX;
+        return BLUE;
     } else if ((redAverage >= 82) && (blueAverage >= 44)) {
-        return YELLOW_INDEX;
+        return YELLOW;
     } else if ((redAverage >= 23 && redAverage <= 26) && (blueAverage >= 22 && blueAverage <= 24)) {
-        return BLACK_INDEX;
+        return BLACK;
     } else {
-        return WRONG_INDEX;
+        return WRONG;
     }
 }
 
