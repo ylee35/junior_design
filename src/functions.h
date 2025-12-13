@@ -22,7 +22,6 @@ String receiveMessage();
 
 
 
-
 class BotMotions {
     public: 
         void directionControl();

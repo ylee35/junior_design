@@ -28,7 +28,8 @@ CircularBuffer<float, 10> redBuffer2;
 CircularBuffer<float, 10> blueBuffer1;
 CircularBuffer<float, 10> blueBuffer2;
 
-CircularBuffer<float, 10> photoBuffer;
+CircularBuffer<float, 5> photoBuffer;
+// CircularBuffer<float, 4> buffer4;
 
 bool sentOnce = 1;
 

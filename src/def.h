@@ -54,7 +54,9 @@ extern CircularBuffer<float, 10> redBuffer2;
 extern CircularBuffer<float, 10> blueBuffer1;
 extern CircularBuffer<float, 10> blueBuffer2;
 
-extern CircularBuffer<float, 10> photoBuffer;
+extern CircularBuffer<float, 5> photoBuffer;
+// CircularBuffer<float, 4> buffer4;
+
 
 //-----------------------------------------------------------------------------
 

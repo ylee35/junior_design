@@ -35,13 +35,13 @@ void loop() {
 //   sendMessage(clientID);
 
   
-  // client.beginMessage(TYPE_TEXT);
-  // client.print(clientID);
-  // client.endMessage();
+//   client.beginMessage(TYPE_TEXT);
+//   client.print(clientID);
+//   client.endMessage();
 
     // while (client.connected()) {
 
-        motions.set_speeds(500, 500, 500);
+        motions.set_speeds(100, 100, 100);
         
         // Serial.print(x);
         // Serial.print(",");
@@ -53,8 +53,24 @@ void loop() {
         delete[] colorIndices;
         colorIndices = nullptr;
 
-        motions.forward();
+        // motions.forward();
+        bool object = objectDetected();
+        if (object) {
+            digitalWrite(LED_BUILTIN, HIGH);
+        } else {
+            digitalWrite(LED_BUILTIN, LOW);
+        }
         
+        // bool object = objectDetected();
+
+        // while(1) {
+        //     bool object = objectDetected();
+            // while (!object) {
+            //     motions.forward();
+            // } 
+            // motions.stop();
+        // }
+        // motions.forward();
         // while(1){
         //     switch(currState) {
         //         case state1: // cross to the other side
@@ -65,16 +81,17 @@ void loop() {
         //                 object = objectDetected();
         //                 Serial.println(object);
         //             }
+        //             digitalWrite(LED_BUILTIN, HIGH);
 
         //             Serial.println(object);
-        //             // currState = state2;
-        //             // break;
+        //             currState = state2;
+        //             break;
 
         //         case state2: //stop state
         //             motions.stop();
         //             delay(1000);
 
-        //             currState = state3;
+        //             // currState = state3;
         //             break;
 
         //         case state3: // 
@@ -124,7 +141,7 @@ void loop() {
         //             object = objectDetected();
 
         //             while (!object) {
-        //                 int *colors = colorSensed();
+        //                 colors = colorSensed();
         //                 while (colors[RIGHT] == RED && colors[LEFT] == RED) {
         //                     motions.forward();
         //                     colors = colorSensed();
@@ -160,7 +177,7 @@ void loop() {
         //             }
         //             motions.stop();
 
-        //             int *colors = colorSensed();
+        //             colors = colorSensed();
         //             while (colors[RIGHT] != BLACK || colors[LEFT] != BLACK) {
         //                 motions.left_turn();
         //                 colors = colorSensed();
@@ -187,7 +204,7 @@ void loop() {
 
         //         case state6: // moving in the yellow lane
         //             // reposition to make both sensors on yellow 
-        //             int *colors = colorSensed();
+        //             colors = colorSensed();
         //             while (colors[RIGHT] != YELLOW && colors[LEFT] != YELLOW) {
         //                 motions.left_turn();
         //             }
