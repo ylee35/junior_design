@@ -12,8 +12,8 @@
 char ssid[] = "tufts_eecs"; //username
 char pass[] = "foundedin1883"; //password
 
-char serverAddress[] = "34.28.153.91"; // server address
-int port = 80; //port
+char serverAddress[] = "35.239.140.61"; // server address
+int port = 8080; //port
 
 WiFiClient wifi; //wifi object
 WebSocketClient client = WebSocketClient(wifi, serverAddress, port); // client object

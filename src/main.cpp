@@ -28,9 +28,9 @@ void setup() {
 }
 
 void loop() {
-//    client.begin();
+    client.begin();
 
-//   Serial.println("starting WebSocket client");
+    Serial.println("starting WebSocket client");
 //   client.begin();
 //   sendMessage(clientID);
 
@@ -39,27 +39,27 @@ void loop() {
 //   client.print(clientID);
 //   client.endMessage();
 
-    // while (client.connected()) {
-
-        motions.set_speeds(100, 100, 100);
+    while (client.connected()) {
+        Serial.println("connected");
+        // motions.set_speeds(100, 100, 100);
         
-        // Serial.print(x);
-        // Serial.print(",");
-        // motions.stop();
-        int* colorIndices = colorSensed();
-        // Serial.print(colorIndices[0]);
-        // Serial.println(colorIndices[1]);
+        // // Serial.print(x);
+        // // Serial.print(",");
+        // // motions.stop();
+        // int* colorIndices = colorSensed();
+        // // Serial.print(colorIndices[0]);
+        // // Serial.println(colorIndices[1]);
 
-        delete[] colorIndices;
-        colorIndices = nullptr;
+        // delete[] colorIndices;
+        // colorIndices = nullptr;
 
-        // motions.forward();
-        bool object = objectDetected();
-        if (object) {
-            digitalWrite(LED_BUILTIN, HIGH);
-        } else {
-            digitalWrite(LED_BUILTIN, LOW);
-        }
+        // // motions.forward();
+        // bool object = objectDetected();
+        // if (object) {
+        //     digitalWrite(LED_BUILTIN, HIGH);
+        // } else {
+        //     digitalWrite(LED_BUILTIN, LOW);
+        // }
         
         // bool object = objectDetected();
 
@@ -267,5 +267,6 @@ void loop() {
         //             break;
         //     }
         // }
+    }
 }
 
