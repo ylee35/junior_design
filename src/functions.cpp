@@ -127,15 +127,15 @@ int *colorSensed() {
     float blueAverage2 = blueSum2 / blueBuffer2.size();
 
     // REMOVE
-    // Serial.print(redAverage1);
-    // Serial.print(",");
-    // Serial.print(redAverage2);
-    // Serial.print(",");
+    Serial.print(redAverage1);
+    Serial.print(",");
+    Serial.print(redAverage2);
+    Serial.print(",");
 
-    // Serial.print(blueAverage1);
-    // Serial.print(",");
-    // Serial.println(blueAverage2);
-    // Serial.print(":      ");
+    Serial.print(blueAverage1);
+    Serial.print(",");
+    Serial.print(blueAverage2);
+    Serial.print(": ");
 
     int *colorIndices = new int[2];
 
@@ -143,18 +143,20 @@ int *colorSensed() {
     // function to get what color it is 
     colorIndices[0] = colorIndex1(redAverage1, blueAverage1);
     colorIndices[1] = colorIndex2(redAverage2, blueAverage2);
+    Serial.print(colorIndices[0]);
+    Serial.println(colorIndices[1]);
 
     return colorIndices;
 }
 
 int colorIndex1(int redAverage, int blueAverage) { // just change everytime
-    if ((redAverage >= 296 && redAverage <= 305) && (blueAverage >= 359 && blueAverage <= 365)) {
+    if ((redAverage >= 20 && redAverage <= 24) && (blueAverage >= 26 && blueAverage <= 31)) {
         return RED;
-    } else if ((redAverage >= 260 && redAverage <= 274) && (blueAverage >= 345 && blueAverage <= 353)) {
+    } else if ((redAverage >= 10 && redAverage <= 15) && (blueAverage >= 20 && blueAverage <= 26)) {
         return BLUE;
-    } else if ((redAverage >= 389) && (blueAverage >= 438)) {
+    } else if ((redAverage >= 74) && (blueAverage >= 65)) {
         return YELLOW;
-    } else if ((redAverage >= 237 && redAverage <= 253) && (blueAverage >= 291 && blueAverage <= 302)) {
+    } else if ((redAverage >= 4 && redAverage <= 8) && (blueAverage >= 10 && blueAverage <= 14)) {
         return BLACK;
     } else {
         return WRONG;
@@ -162,13 +164,13 @@ int colorIndex1(int redAverage, int blueAverage) { // just change everytime
 }
 
 int colorIndex2(int redAverage, int blueAverage) {
-    if ((redAverage >= 41 && redAverage <= 44) && (blueAverage >= 28 && blueAverage <= 31)) {
+    if ((redAverage >= 15 && redAverage <= 17) && (blueAverage >= 20 && blueAverage <= 21)) {
         return RED;
-    } else if ((redAverage >= 30 && redAverage <= 33) && (blueAverage >= 52 && blueAverage <= 55)) {
+    } else if ((redAverage >= 12 && redAverage <= 15) && (blueAverage >= 70 && blueAverage <= 76)) {
         return BLUE;
-    } else if ((redAverage >= 82) && (blueAverage >= 44)) {
+    } else if ((redAverage >= 48) && (blueAverage >= 39)) {
         return YELLOW;
-    } else if ((redAverage >= 23 && redAverage <= 26) && (blueAverage >= 22 && blueAverage <= 24)) {
+    } else if ((redAverage >= 5 && redAverage <= 9) && (blueAverage >= 8 && blueAverage <= 14)) {
         return BLACK;
     } else {
         return WRONG;
@@ -179,80 +181,28 @@ int array[4] = {0, 0, 0, 0};
 bool firstTime = true; 
 
 bool objectDetected() {
-    
-    photoBuffer.clear();
-
-    // for (int sample = 0; sample < 4; sample++) {
-    //     for (int i = 0; i < photoBuffer.size(); i++) { // 5 times
-    //         float reading = analogRead(PHOTO_DETECTOR);
-    //         photoBuffer.push(reading);
-    //     }
-
-    //     // compute average
-    //     int sum = 0;
-    //     for (int i = 0; i < photoBuffer.size(); i++) {
-    //             sum += photoBuffer[i];
-    //     }
-        
-    //     float average = sum / photoBuffer.size();
-        
-    //     buffer4.push(average); // happens 4 times 
-    // }
-
-    // Serial.print("difference is ");
-    // Serial.println(buffer4[3] - buffer4[0]);
-
-    // if (buffer4[3] - buffer4[0] > 0) {
-    //     return true;
-    // }
-
-    // return false;
-
-    for (int i = 0; i < photoBuffer.size(); i++) { // 5 times
-        float reading = analogRead(PHOTO_DETECTOR);
-        photoBuffer.push(reading);
-    }
-    
+    digitalWrite(IR_LED, HIGH);
     if (firstTime) {
         for (int i = 0; i < 4; i++) {
-            float sum = 0;
 
-            for (int i = 0; i < photoBuffer.size(); i++) { // 5 times
-                float reading = analogRead(PHOTO_DETECTOR);
-                photoBuffer.push(reading);
-            }
-    
-            for (size_t j = 0; j < photoBuffer.size(); j++) {
-                sum += photoBuffer[j];
-            }
-            float average = sum / photoBuffer.size();
+            float reading = analogRead(PHOTO_DETECTOR);
 
-            array[i] = average;
+            array[i] = reading;
         }
         firstTime = false;
     } else {
-        float sum = 0;
-        
-        for (int i = 0; i < photoBuffer.size(); i++) { // 5 times
-            float reading = analogRead(PHOTO_DETECTOR);
-            photoBuffer.push(reading);
-        }
-    
-        for (int i = 0; i < photoBuffer.size(); i++) {
-            sum += photoBuffer[i];
-        }
-        float average = sum / photoBuffer.size();
+
+        float reading = analogRead(PHOTO_DETECTOR);
 
         array[0] = array[1];
         array[1] = array[2];
         array[2] = array[3];
-        array[3] = average;
-        
-        Serial.print("average is ");
-        Serial.println(average);
-        Serial.print("difference is ");
-        Serial.println(array[3] - array[0]);
-        if (array[3] - array[0] < -10) {
+        array[3] = reading;
+
+        // Serial.print("difference is ");
+        // Serial.println(array[3] - array[0]);
+
+        if (array[3] - array[0] < -60) {
             Serial.println("---------RETURNING TRUE---------");
             return true;
         }
@@ -347,7 +297,7 @@ void BotMotions::backward() {
 }
 
 void BotMotions::forward() {
-    Serial.println("in forward");
+    // Serial.println("in forward");
     digitalWrite(enA, HIGH);
     digitalWrite(enB, HIGH);
 
