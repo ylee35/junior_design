@@ -30,15 +30,20 @@ void setup() {
 void loop() {
     // client.begin();
 
-    // Serial.println("starting WebSocket client");
-    // client.begin();
+    Serial.println("starting WebSocket client");
+    client.begin();
     // sendMessage(clientID);
 
     // client.beginMessage(TYPE_TEXT);
     // client.print(clientID);
     // client.endMessage();
 
-    // while (client.connected()) {
+    while (client.connected()) {
+        Serial.println("connected");
+        client.beginMessage(TYPE_TEXT);
+        client.print("test");
+        client.endMessage();
+    }
 
     motions.set_speeds(100, 100, 100);
     // Serial.print(x);
@@ -73,7 +78,7 @@ void loop() {
     bool object = false;
     int count = 0;
 
-    while(1){
+    while(0){
         switch(currState) {
             case state1: // cross to the other side
                 // Serial.println("in state1");

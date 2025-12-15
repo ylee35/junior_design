@@ -240,65 +240,65 @@ bool objectDetected(){
     return false;
 }
 
-bool objectDetected() {
+// bool objectDetected() {
     
-    if (!initialDetection) {
+//     if (!initialDetection) {
 
-        digitalWrite(IR_LED, HIGH);
+//         digitalWrite(IR_LED, HIGH);
 
-        photoBuffer.clear();
+//         photoBuffer.clear();
 
-        // for (int i = 0; i < photoBuffer.capacity; i++) {
-        //     int reading = analogRead(PHOTO_DETECTOR);
+//         // for (int i = 0; i < photoBuffer.capacity; i++) {
+//         //     int reading = analogRead(PHOTO_DETECTOR);
 
-        //     photoBuffer.push(reading);
-        //     delay(2);
-        // }
+//         //     photoBuffer.push(reading);
+//         //     delay(2);
+//         // }
 
-        // //baseline
-        // long sum = 0;
-        // for (size_t i = 0; i < photoBuffer.size(); i++) {
-        //     sum += photoBuffer[i];
-        // }
-        // initialReading = sum / photoBuffer.size();
+//         // //baseline
+//         // long sum = 0;
+//         // for (size_t i = 0; i < photoBuffer.size(); i++) {
+//         //     sum += photoBuffer[i];
+//         // }
+//         // initialReading = sum / photoBuffer.size();
 
 
-        delay(100);
-        initialReading = analogRead(PHOTO_DETECTOR);
+//         delay(100);
+//         initialReading = analogRead(PHOTO_DETECTOR);
 
-        Serial.print("Baseline: ");
-        Serial.println(initialReading);
+//         Serial.print("Baseline: ");
+//         Serial.println(initialReading);
 
-        initialDetection = true;
-    }
-    digitalWrite(IR_LED, HIGH);
+//         initialDetection = true;
+//     }
+//     digitalWrite(IR_LED, HIGH);
 
-    float reading = analogRead(PHOTO_DETECTOR);
+//     float reading = analogRead(PHOTO_DETECTOR);
 
-    photoBuffer.push(reading);
+//     photoBuffer.push(reading);
 
-    float sum = 0;
-    for (size_t i = 0; i < photoBuffer.size(); i++) {
-        sum += photoBuffer[i];
-    }
-    float average = sum / photoBuffer.size();
+//     float sum = 0;
+//     for (size_t i = 0; i < photoBuffer.size(); i++) {
+//         sum += photoBuffer[i];
+//     }
+//     float average = sum / photoBuffer.size();
 
-    Serial.print("Raw photodetector: ");
-    Serial.print(reading);
-    Serial.print(" | Filtered average: ");
-    Serial.println(average);
+//     Serial.print("Raw photodetector: ");
+//     Serial.print(reading);
+//     Serial.print(" | Filtered average: ");
+//     Serial.println(average);
 
-    Serial.print("******** DIFFERENCE IS ");
-    Serial.println(average - initialReading);
+//     Serial.print("******** DIFFERENCE IS ");
+//     Serial.println(average - initialReading);
 
-    if ((average - initialReading) > 12) { // higher if closer
+//     if ((average - initialReading) > 12) { // higher if closer
         
-        Serial.println("---------RETURNING TRUE---------");
-        return true;
-    }
+//         Serial.println("---------RETURNING TRUE---------");
+//         return true;
+//     }
 
-    return false;
-}
+//     return false;
+// }
 
 
 void BotMotions::stop() {
