@@ -1,5 +1,3 @@
-
-
 /*
  *      def.cpp
  * 
@@ -14,8 +12,8 @@
 char ssid[] = "tufts_eecs"; //username
 char pass[] = "foundedin1883"; //password
 
-char serverAddress[] = "35.239.140.61"; // server address
-int port = 8080; //port
+char serverAddress[] = "10.5.15.226"; // server address
+int port = 8765; //port
 
 WiFiClient wifi; //wifi object
 WebSocketClient client = WebSocketClient(wifi, serverAddress, port); // client object
@@ -24,11 +22,11 @@ int status = WL_IDLE_STATUS; // client status
 int count = 0; // idle counter
 //-----------------------------------------------------------------------------
 
-CircularBuffer<float, 5> redBuffer1;
-CircularBuffer<float, 5> redBuffer2;
+CircularBuffer<float, 10> redBuffer1;
+CircularBuffer<float, 10> redBuffer2;
 
-CircularBuffer<float, 5> blueBuffer1;
-CircularBuffer<float, 5> blueBuffer2;
+CircularBuffer<float, 10> blueBuffer1;
+CircularBuffer<float, 10> blueBuffer2;
 
 CircularBuffer<float, 5> photoBuffer;
 // CircularBuffer<float, 4> buffer4;

@@ -1,4 +1,3 @@
-
 /*
  *      functions.cpp
  * 
@@ -7,6 +6,7 @@
 */
 
 #include "functions.h"
+
 
 int initialReading;
 bool initialDetection;
@@ -34,8 +34,6 @@ void setPinModes() {
     digitalWrite(in4, LOW);
     digitalWrite(enA, LOW);
     digitalWrite(enB, LOW);
-
-    pinMode(BUTTON_PIN, INPUT_PULLUP);
 }
 
 String receiveMessage() {
@@ -66,8 +64,6 @@ String receiveMessage() {
     return parsed;
 }
 
-int calVals[4][2][2][2];
-
 
 void sendMessage(String messageToTeam){
     client.beginMessage(TYPE_TEXT);
@@ -76,158 +72,6 @@ void sendMessage(String messageToTeam){
     Serial.println("sent");
     sentOnce = false;
 }
-
-void calibrateOnce(int color) {
-    
-    for (int i = 0; i < 20; i++) {
-        // --- RED illumination ---
-        digitalWrite(RED_LED, HIGH);
-        float r1 = analogRead(PHOTO_TRANS_1);
-        Serial.print("r1 is ");
-        Serial.println(r1);
-
-        float r2 = analogRead(PHOTO_TRANS_2);
-        Serial.print("r2 is ");
-        Serial.println(r2);
-        delay(40);
-        digitalWrite(RED_LED, LOW);
-        
-
-        // --- BLUE illumination ---
-        digitalWrite(BLUE_LED, HIGH);
-        float b1 = analogRead(PHOTO_TRANS_1);
-        float b2 = analogRead(PHOTO_TRANS_2);
-        digitalWrite(BLUE_LED, LOW);
-
-// 89 107 108 131 min max min max
-// 159 169 202 218
-// 60 72 65 89
-// 27 77 47 75
-        // sensor 1
-        calVals[color][SENSOR1][RED_CH][MIN_V] = min(calVals[color][SENSOR1][RED_CH][MIN_V], r1);
-        Serial.print("RED SENSOR1 MIN: ");
-        Serial.println(calVals[color][SENSOR1][RED_CH][MIN_V]);
-
-        calVals[color][SENSOR1][RED_CH][MAX_V] = max(calVals[color][SENSOR1][RED_CH][MAX_V], r1);
-        Serial.print("RED SENSOR1 MAX: ");
-        Serial.println(calVals[color][SENSOR1][RED_CH][MAX_V]);
-
-
-        calVals[color][SENSOR1][BLUE_CH][MIN_V] = min(calVals[color][SENSOR1][BLUE_CH][MIN_V], b1);
-        calVals[color][SENSOR1][BLUE_CH][MAX_V] = max(calVals[color][SENSOR1][BLUE_CH][MAX_V], b1);
-
-
-        // sensor 2
-        calVals[color][SENSOR2][RED_CH][MIN_V] = min(calVals[color][SENSOR2][RED_CH][MIN_V], r2);
-        Serial.print("RED SENSOR2 MIN: ");
-        Serial.println(calVals[color][SENSOR2][RED_CH][MIN_V]);
-
-        calVals[color][SENSOR2][RED_CH][MAX_V] = max(calVals[color][SENSOR2][RED_CH][MAX_V], r2);
-        Serial.print("RED SENSOR2 max: ");
-        Serial.println(calVals[color][SENSOR2][RED_CH][MAX_V]);
-
-        calVals[color][SENSOR2][BLUE_CH][MIN_V] = min(calVals[color][SENSOR2][BLUE_CH][MIN_V], b2);
-        calVals[color][SENSOR2][BLUE_CH][MAX_V] = max(calVals[color][SENSOR2][BLUE_CH][MAX_V], b2);
-
-        delay(40);
-    }
-}
-
-void initCalibration(int color) {
-    for (int s = 0; s < 2; s++) {
-        for (int ch = 0; ch < 2; ch++) {
-            calVals[color][s][ch][MIN_V] = 1023;  // max possible ADC value
-            calVals[color][s][ch][MAX_V] = 0;
-        }
-    }
-}
-
-
-void calibrateAllColors() {
-    for (int c = RED; c <= BLACK; c++) {
-        initCalibration(c);
-        Serial.print("calibrating for ");
-        Serial.println(c);
-        waitForButtonPress();   // user positions object
-        Serial.println("button pressed");
-        calibrateOnce(c);
-        applyCalibrationBuffer(c);
-
-        digitalWrite(LED_BUILTIN, HIGH);
-        delay(150);
-        digitalWrite(LED_BUILTIN, LOW);
-    }
-    waitForButtonPress();
-}
-
-
-void waitForButtonPress() {
-    while (digitalRead(BUTTON_PIN) == HIGH) { // HIGH means not pressed 
-        // waiting for press
-    }
-    delay(20); // debounce
-    return;    // exit immediately on press
-}
-
-
-int colorIndexSingle(int redAvg, int blueAvg, int sensor) {
-
-    if (
-        (redAvg  >= calVals[RED][sensor][RED_CH][MIN_V]  &&
-         redAvg  <= calVals[RED][sensor][RED_CH][MAX_V]) &&
-        (blueAvg >= calVals[RED][sensor][BLUE_CH][MIN_V] &&
-         blueAvg <= calVals[RED][sensor][BLUE_CH][MAX_V])
-    ) {
-        return RED;
-    }
-
-    else if (
-        (redAvg  >= calVals[YELLOW][sensor][RED_CH][MIN_V]  &&
-         redAvg  <= calVals[YELLOW][sensor][RED_CH][MAX_V]) &&
-        (blueAvg >= calVals[YELLOW][sensor][BLUE_CH][MIN_V] &&
-         blueAvg <= calVals[YELLOW][sensor][BLUE_CH][MAX_V])
-    ) {
-        return YELLOW;
-    }
-
-    else if (
-        (redAvg  >= calVals[BLUE][sensor][RED_CH][MIN_V]  &&
-         redAvg  <= calVals[BLUE][sensor][RED_CH][MAX_V]) &&
-        (blueAvg >= calVals[BLUE][sensor][BLUE_CH][MIN_V] &&
-         blueAvg <= calVals[BLUE][sensor][BLUE_CH][MAX_V])
-    ) {
-        return BLUE;
-    }
-
-    else if (
-        (redAvg  >= calVals[BLACK][sensor][RED_CH][MIN_V]  &&
-         redAvg  <= calVals[BLACK][sensor][RED_CH][MAX_V]) &&
-        (blueAvg >= calVals[BLACK][sensor][BLUE_CH][MIN_V] &&
-         blueAvg <= calVals[BLACK][sensor][BLUE_CH][MAX_V])
-    ) {
-        return BLACK;
-    }
-
-    return WRONG;
-}
-// take the samples, put a bigger delay between flashes, more samples
-void applyCalibrationBuffer(int color) {
-    const int BUFFER = 5;
-
-    for (int s = 0; s < 2; s++) {
-        for (int ch = 0; ch < 2; ch++) {
-            calVals[color][s][ch][MIN_V] = 
-                max(0, calVals[color][s][ch][MIN_V] - BUFFER);
-
-            calVals[color][s][ch][MAX_V] =
-                min(1023, calVals[color][s][ch][MAX_V] + BUFFER);
-        }
-    }
-}
-
-
-
-
 
 int *colorSensed() {
     redBuffer1.clear();
@@ -238,7 +82,7 @@ int *colorSensed() {
 
     // taking 10 phototransistor values for each color and each sensor, then 
     // and pushing them to the corresponding buffer
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 10; i++) {
         digitalWrite(RED_LED, HIGH);
         float red1 = analogRead(PHOTO_TRANS_1);
         float red2 = analogRead(PHOTO_TRANS_2);
@@ -298,10 +142,8 @@ int *colorSensed() {
 
     // passing the red and blue average values for each sensor to a helper 
     // function to get what color it is 
-
-    colorIndices[0] = colorIndexSingle(redAverage1, blueAverage1, SENSOR1);
-    colorIndices[1] = colorIndexSingle(redAverage2, blueAverage2, SENSOR2);
-
+    colorIndices[0] = colorIndex1(redAverage1, blueAverage1);
+    colorIndices[1] = colorIndex2(redAverage2, blueAverage2);
     Serial.print(colorIndices[0]);
     Serial.println(colorIndices[1]);
 
@@ -309,13 +151,13 @@ int *colorSensed() {
 }
 
 int colorIndex1(int redAverage, int blueAverage) { // just change everytime
-    if ((redAverage >= 3 && redAverage <= 22) && (blueAverage >= 7 && blueAverage <= 81)) {
+    if ((redAverage >= 20 && redAverage <= 24) && (blueAverage >= 26 && blueAverage <= 31)) {
         return RED;
-    } else if ((redAverage >= 8 && redAverage <= 23) && (blueAverage >= 101 && blueAverage <= 113)) {
+    } else if ((redAverage >= 10 && redAverage <= 15) && (blueAverage >= 20 && blueAverage <= 26)) {
         return BLUE;
-    } else if ((redAverage >= 49 && redAverage <= 59) && (blueAverage >= 96 && blueAverage <= 101)) {
+    } else if ((redAverage >= 74) && (blueAverage >= 65)) {
         return YELLOW;
-    } else if ((redAverage >= 5 && redAverage <= 17) && (blueAverage >= 54 && blueAverage <= 65)) {
+    } else if ((redAverage >= 4 && redAverage <= 8) && (blueAverage >= 10 && blueAverage <= 14)) {
         return BLACK;
     } else {
         return WRONG;
@@ -323,13 +165,13 @@ int colorIndex1(int redAverage, int blueAverage) { // just change everytime
 }
 
 int colorIndex2(int redAverage, int blueAverage) {
-    if ((redAverage >= 123 && redAverage <= 133) && (blueAverage >= 45 && blueAverage <= 49)) {
+    if ((redAverage >= 15 && redAverage <= 17) && (blueAverage >= 20 && blueAverage <= 21)) {
         return RED;
-    } else if ((redAverage >= 99 && redAverage <= 110) && (blueAverage >= 130 && blueAverage <= 153)) {
+    } else if ((redAverage >= 12 && redAverage <= 15) && (blueAverage >= 70 && blueAverage <= 76)) {
         return BLUE;
-    } else if ((redAverage >= 300 && redAverage <= 311) && (blueAverage >= 47 && blueAverage <= 50)) {
+    } else if ((redAverage >= 48) && (blueAverage >= 39)) {
         return YELLOW;
-    } else if ((redAverage >= 76 && redAverage <= 119) && (blueAverage >= 78 && blueAverage <= 98)) {
+    } else if ((redAverage >= 5 && redAverage <= 9) && (blueAverage >= 8 && blueAverage <= 14)) {
         return BLACK;
     } else {
         return WRONG;
@@ -386,7 +228,7 @@ bool objectDetected(){
         firstTime = false;
     }
     float newReading = analogRead(PHOTO_DETECTOR);
-    float comparisonVal = -110; //change
+    float comparisonVal = -25; //change
 
     float difference = baseline - newReading;
     Serial.print("difference is ");

@@ -1,278 +1,79 @@
-#include "functions.h"
-#include "def.h"
+/*
+Simple WebSocket client for ArduinoHttpClient library
+created 28 Jun 2016
+by Sandeep Mistry
+modified 22 Jan 2019
+by Tom Igoe
+Modified by Gabriel Sessions and Emily Carlson
+for EE 31
+this example is in the public domain
+*/
+#include <ArduinoHttpClient.h>
+#include <WiFiNINA.h>
+#include <LiquidCrystal.h>
 
-enum states{state1 , state2 , state3 , state4 , state5 , state6 , state7};
-// state 1 : cross to other side
-// state 2: Stop when it senses the wall at the top and turn around
-// state 3. Cross back to find the red lane,
-// state 4. Follow the red lane until it senses the wall at the right
-// state 5. Turn left and find the yellow lane
-// state 6. Follow the yellow lane until it senses the wall at the left
-// state 7. Turn left and return to the starting position
-enum states currState = state1;
-String parsed;
+/////// you can enter your sensitive data in the Secret tab/arduino_secrets.h
+/////// WiFi Settings ///////
+char ssid[] = "tufts_eecs";
+char pass[] = "foundedin1883";
 
-BotMotions motions;
+//char serverAddress[] = "34.28.153.91"; // server address
+int port = 80;
 
-bool bot1 = false;
-bool bot2 = true;
-
-bool bot1flash = false;
-bool bot1sent = false;
-
+WiFiClient wifi;
+WebSocketClient client = WebSocketClient(wifi, serverAddress, port);
+String clientID = "4A9EDB0160D5"; //Insert your Server ID Here!
+int status = WL_IDLE_STATUS;
+int count = 0;
 
 void setup() {
-    Serial.begin(9600);
-    wifiSetup();
-    setPinModes();
+  Serial.begin(9600);
+  while ( status != WL_CONNECTED) {
+    Serial.print("Attempting to connect to Network named: ");
+    Serial.println(ssid); // print the network name (SSID);
 
-    
+    // Connect to WPA/WPA2 network:
+    status = WiFi.begin(ssid, pass);
+  }
+
+  // print the SSID of the network you're attached to:
+  Serial.print("SSID: ");
+  Serial.println(WiFi.SSID());
+
+  // print your WiFi shield's IP address:
+  IPAddress ip = WiFi.localIP();
+  Serial.print("IP Address: ");
+  Serial.println(ip);
 }
 
 void loop() {
-    // client.begin();
+  // start Websocket Client
+  Serial.println("starting WebSocket client");
+  client.begin();
+  client.beginMessage(TYPE_TEXT);
+  client.print(clientID);
+  client.endMessage();
 
-    calibrateAllColors();
+  
 
-    // Serial.println("starting WebSocket client");
-    // client.begin();
-    // sendMessage(clientID);
+  while (client.connected()) {
+    //parseMessage and readString
 
-    // client.beginMessage(TYPE_TEXT);
-    // client.print(clientID);
-    // client.endMessage();
+    int messageReceived = client.parseMessage();
+    if (messageReceived) {
+      String message = client.readString();
+      Serial.print("message is ");
+      Serial.println(message);
 
-    // while (client.connected()) {
-
-    motions.set_speeds(200, 200, 200);
-    // Serial.print(x);
-    // Serial.print(",");
-    // motions.stop();
-    int* colorIndices = colorSensed();
-
-    delete[] colorIndices;
-    colorIndices = nullptr;
-
-    // motions.forward();
-    // bool object = objectDetected();
-    // if (object) {
-    // motions.stop();
-    // digitalWrite(LED_BUILTIN, HIGH);
-    // } else {
-    // motions.forward();
-    // digitalWrite(LED_BUILTIN, LOW);
-    // }
-    // bool object = objectDetected();
-
-    // while(1) {
-    // bool object = objectDetected();
-    // while (!object) {
-    // motions.forward();
-    // }
-    // motions.stop();
-    // }
-    //motions.forward();
-    bool object = false;
-    int count = 0;
-
-    while(1){
-        switch(currState) {
-            motions.set_speeds(200, 200, 200);
-            case state1: // cross to the other side
-                // int sent = false;
-                // if (!sent){
-                //     sendMessage("State 1 ^-^");
-                //     sent = true;
-                // }
-                Serial.println("in state1");
-                //motions.forward();
-                while(count < 20){
-                    object = objectDetected();
-                    count++;
-                    motions.forward();
-                }
-
-                object = objectDetected();
-
-                if (object) {
-                    motions.stop();
-                    // digitalWrite(LED_BUILTIN, HIGH);
-                    // Serial.println("Object detected");
-                    currState = state2;
-                    // Serial.println("Sending to state 2");
-                    break;
-                } else {
-                    motions.forward();
-                    digitalWrite(LED_BUILTIN, LOW);
-                }
-                
-                // Serial.println("Sending to state 1");
-                currState = state1;
-                break;
-
-        case state2: //stop state
-            sendMessage("State 2 ^-^");
-            Serial.println("in state 2");
-            motions.stop();
-            delay(500);
-
-            // currState = state3;
-            Serial.println("Sending to state 3)");
-            currState = state3;
-            break;
-
-        case state3: //find red and pivot
-            sendMessage("State 3 ^-^");
-            Serial.println("in state 3");
-            digitalWrite(LED_BUILTIN, HIGH);
-            int *colors = colorSensed();
-
-            while (1) {
-                colors = colorSensed();
-            }
-
-            // go backwards to find red lane
-            motions.set_speeds(200, 200, 200);
-            while (colors[RIGHT] != RED) {
-                motions.backward();
-                colors = colorSensed();
-                // delay(2000);
-            }
-            motions.stop();
-            delay(500);
-
-            while ((colors[RIGHT] == RED) || (colors[LEFT] == BLACK)){
-                motions.pivot_cc();
-                colors = colorSensed();
-            }
+      if (message.substring(0, 21) == "WebClient_4A9EDB0160D5") {
+        String parsed = message.substring(22, messageReceived);
+        Serial.print("parsed is ");
+        Serial.println(parsed);
+      }
+    }
 
     
-            //pivot until we sense black with the right and red with the left
-
-            motions.stop();
-            delay(5);
-
-            //get to red on the right
-            while (colors[RIGHT == BLACK]){
-                motions.pivot_c();
-                colors = colorSensed();
-            }
-
-            currState = state4;
-            Serial.println("Moving to state four");
-            break;
-
-        case state4: //red lane following
-            sendMessage("State 4 ^-^");
-            Serial.println("in state 4");
-            motions.stop();
-            object = objectDetected();
-            
-            while (!object && colors[RIGHT] == RED) {
-                Serial.println("right is red");
-                motions.forward();
-                colors = colorSensed();
-                object = objectDetected();
-            }
-            while (!object && colors[RIGHT] != RED){
-                Serial.println("right is not red");
-                motions.pivot_c();
-                colors = colorSensed();
-                object = objectDetected();
-            }
-            if (object){
-                Serial.println("stopping");
-                currState = state5;
-                motions.stop();
-                break;
-            } 
-            currState = state4;
-            break;
-            motions.stop();
-
-        case state5: // turning to find the yellow lane
-            sendMessage("State 5 ^-^");
-            motions.backward();
-            delay(1000);
-            motions.stop();
-            delay(5);
-
-            colors = colorSensed();
-            while(colors[RIGHT] == RED || colors[LEFT] == RED){
-                motions.pivot_c();
-                colors = colorSensed();
-            }
-            motions.stop();
-            delay(5);
-            colors = colorSensed();
-            while (colors[RIGHT] != YELLOW || colors[LEFT] != YELLOW) {
-                motions.forward();
-                colors = colorSensed();
-            }
-
-            motions.stop();
-
-            while (colors[LEFT] == YELLOW){
-                motions.pivot_c();
-                colors = colorSensed();
-            }
-            currState = state6;
-            break;
-
-        case state6: // moving in the yellow lane
-            sendMessage("State 6 ^-^");
-        // reposition to make both sensors on yellow
-            colors = colorSensed();
-            object = objectDetected();
-            while (!object && (colors[RIGHT] == YELLOW && colors[LEFT] != YELLOW)){
-                motions.forward();
-                object = objectDetected();
-                colors = colorSensed();
-            }
-            while(!object && colors[LEFT] == YELLOW){
-                motions.pivot_c();
-                object = objectDetected();
-                colors = colorSensed();
-                
-            }
-            if(object){
-                motions.stop();
-                delay(5);
-                currState = state7;
-                break;
-            }
-            currState = state6;
-            break;
-
-        case state7: //turn and go back home
-            sendMessage("State 7 ^-^");
-            motions.backward();
-            delay(1000);
-            colors = colorSensed();
-            while(colors[RIGHT] == YELLOW || colors[LEFT] == YELLOW){
-                motions.pivot_c();
-                colors = colorSensed();
-            }
-            motions.stop();
-            delay(5);
-
-            object = objectDetected();
-            bool finished = false;
-            while(!object){
-                motions.forward();
-                object = objectDetected();
-            }
-            finished = true;
-            motions.stop();
-            bool sentStop = false;
-            while (finished){
-                motions.stop();
-                if (!sentStop){
-                    sendMessage("Stopped :p");
-                    sentStop = true;
-                }
-            }
-        }
-        // }
-    }
+  }
+  
+  Serial.println("disconnected");
 }
