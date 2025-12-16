@@ -25,6 +25,9 @@ void waitForButtonPress();
 void calibrateOnce(int color);
 void calibrateAllColors();
 int colorIndexSingle(int redAvg, int blueAvg, int sensor);
+void initCalibration(int color);
+void applyCalibrationBuffer(int color);
+
 
 class BotMotions {
     public: 

@@ -26,11 +26,13 @@ void setup() {
     wifiSetup();
     setPinModes();
 
-    calibrateAllColors();
+    
 }
 
 void loop() {
     // client.begin();
+
+    calibrateAllColors();
 
     // Serial.println("starting WebSocket client");
     // client.begin();
