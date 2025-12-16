@@ -44,7 +44,7 @@ void loop() {
 
     // while (client.connected()) {
 
-    motions.set_speeds(100, 100, 100);
+    motions.set_speeds(200, 200, 200);
     // Serial.print(x);
     // Serial.print(",");
     // motions.stop();
@@ -77,7 +77,7 @@ void loop() {
 
     while(1){
         switch(currState) {
-            motions.set_speeds(150, 150, 150);
+            motions.set_speeds(200, 200, 200);
             case state1: // cross to the other side
                 // int sent = false;
                 // if (!sent){
@@ -127,8 +127,12 @@ void loop() {
             digitalWrite(LED_BUILTIN, HIGH);
             int *colors = colorSensed();
 
+            while (1) {
+                colors = colorSensed();
+            }
+
             // go backwards to find red lane
-            motions.set_speeds(100, 100, 100);
+            motions.set_speeds(200, 200, 200);
             while (colors[RIGHT] != RED) {
                 motions.backward();
                 colors = colorSensed();
@@ -141,6 +145,8 @@ void loop() {
                 motions.pivot_cc();
                 colors = colorSensed();
             }
+
+    
             //pivot until we sense black with the right and red with the left
 
             motions.stop();

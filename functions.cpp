@@ -1,3 +1,4 @@
+
 /*
  *      functions.cpp
  * 
@@ -81,30 +82,36 @@ void calibrateOnce(int color) {
     for (int i = 0; i < 20; i++) {
         // --- RED illumination ---
         digitalWrite(RED_LED, HIGH);
-        delay(5);
         float r1 = analogRead(PHOTO_TRANS_1);
         Serial.print("r1 is ");
         Serial.println(r1);
-        float r2 = analogRead(PHOTO_TRANS_2);
-        digitalWrite(RED_LED, LOW);
 
+        float r2 = analogRead(PHOTO_TRANS_2);
+        Serial.print("r2 is ");
+        Serial.println(r2);
+        delay(40);
+        digitalWrite(RED_LED, LOW);
+        
 
         // --- BLUE illumination ---
         digitalWrite(BLUE_LED, HIGH);
-        delay(5);
         float b1 = analogRead(PHOTO_TRANS_1);
         float b2 = analogRead(PHOTO_TRANS_2);
         digitalWrite(BLUE_LED, LOW);
 
-
+// 89 107 108 131 min max min max
+// 159 169 202 218
+// 60 72 65 89
+// 27 77 47 75
         // sensor 1
         calVals[color][SENSOR1][RED_CH][MIN_V] = min(calVals[color][SENSOR1][RED_CH][MIN_V], r1);
-        Serial.print("RED SENSOR MIN: ");
+        Serial.print("RED SENSOR1 MIN: ");
         Serial.println(calVals[color][SENSOR1][RED_CH][MIN_V]);
 
-        Serial.print("RED SENSOR MAX: ");
         calVals[color][SENSOR1][RED_CH][MAX_V] = max(calVals[color][SENSOR1][RED_CH][MAX_V], r1);
-                Serial.println(calVals[color][SENSOR1][RED_CH][MAX_V]);
+        Serial.print("RED SENSOR1 MAX: ");
+        Serial.println(calVals[color][SENSOR1][RED_CH][MAX_V]);
+
 
         calVals[color][SENSOR1][BLUE_CH][MIN_V] = min(calVals[color][SENSOR1][BLUE_CH][MIN_V], b1);
         calVals[color][SENSOR1][BLUE_CH][MAX_V] = max(calVals[color][SENSOR1][BLUE_CH][MAX_V], b1);
@@ -112,7 +119,13 @@ void calibrateOnce(int color) {
 
         // sensor 2
         calVals[color][SENSOR2][RED_CH][MIN_V] = min(calVals[color][SENSOR2][RED_CH][MIN_V], r2);
+        Serial.print("RED SENSOR2 MIN: ");
+        Serial.println(calVals[color][SENSOR2][RED_CH][MIN_V]);
+
         calVals[color][SENSOR2][RED_CH][MAX_V] = max(calVals[color][SENSOR2][RED_CH][MAX_V], r2);
+        Serial.print("RED SENSOR2 max: ");
+        Serial.println(calVals[color][SENSOR2][RED_CH][MAX_V]);
+
         calVals[color][SENSOR2][BLUE_CH][MIN_V] = min(calVals[color][SENSOR2][BLUE_CH][MIN_V], b2);
         calVals[color][SENSOR2][BLUE_CH][MAX_V] = max(calVals[color][SENSOR2][BLUE_CH][MAX_V], b2);
 
@@ -144,6 +157,7 @@ void calibrateAllColors() {
         delay(150);
         digitalWrite(LED_BUILTIN, LOW);
     }
+    waitForButtonPress();
 }
 
 
@@ -202,7 +216,7 @@ void applyCalibrationBuffer(int color) {
 
     for (int s = 0; s < 2; s++) {
         for (int ch = 0; ch < 2; ch++) {
-            calVals[color][s][ch][MIN_V] =
+            calVals[color][s][ch][MIN_V] = 
                 max(0, calVals[color][s][ch][MIN_V] - BUFFER);
 
             calVals[color][s][ch][MAX_V] =
@@ -372,7 +386,7 @@ bool objectDetected(){
         firstTime = false;
     }
     float newReading = analogRead(PHOTO_DETECTOR);
-    float comparisonVal = -40; //change
+    float comparisonVal = -110; //change
 
     float difference = baseline - newReading;
     Serial.print("difference is ");
