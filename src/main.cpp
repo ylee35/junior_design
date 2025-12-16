@@ -1,5 +1,7 @@
 #include "functions.h"
 #include "def.h"
+#include "colorSensing.h"
+#include "motions.h"
 
 enum states{state1 , state2 , state3 , state4 , state5 , state6 , state7};
 // state 1 : cross to other side
@@ -30,22 +32,17 @@ void setup() {
 void loop() {
     // client.begin();
 
-    Serial.println("starting WebSocket client");
-    client.begin();
+    calibrateAllColors();
+
+    // Serial.println("starting WebSocket client");
+    // client.begin();
     // sendMessage(clientID);
 
     // client.beginMessage(TYPE_TEXT);
     // client.print(clientID);
     // client.endMessage();
 
-    while (client.connected()) {
-        Serial.println("connected");
-        client.beginMessage(TYPE_TEXT);
-        client.print("test");
-        client.endMessage();
-    }
-
-    motions.set_speeds(100, 100, 100);
+    // while (client.connected()) {
     // Serial.print(x);
     // Serial.print(",");
     // motions.stop();
@@ -56,7 +53,6 @@ void loop() {
 
     // motions.forward();
     // bool object = objectDetected();
-    // Serial.println(object);
     // if (object) {
     // motions.stop();
     // digitalWrite(LED_BUILTIN, HIGH);
@@ -73,16 +69,23 @@ void loop() {
     // }
     // motions.stop();
     // }
-
     //motions.forward();
     bool object = false;
     int count = 0;
 
-    while(0){
+    motions.set_speeds(125, 125, 125);
+
+
+    while(1){
         switch(currState) {
             case state1: // cross to the other side
-                // Serial.println("in state1");
-                // motions.forward();
+                // int sent = false;
+                // if (!sent){
+                //     sendMessage("State 1 ^-^");
+                //     sent = true;
+                // }
+                Serial.println("in state1");
+                motions.forward();
                 while(count < 20){
                     object = objectDetected();
                     count++;
@@ -91,192 +94,198 @@ void loop() {
 
                 object = objectDetected();
 
+
                 if (object) {
                     motions.stop();
                     // digitalWrite(LED_BUILTIN, HIGH);
-                    Serial.println("Object detected");
+                    // Serial.println("Object detected");
                     currState = state2;
-                    Serial.println("Sending to state 2");
+                    // Serial.println("Sending to state 2");
                     break;
                 } else {
                     motions.forward();
                     digitalWrite(LED_BUILTIN, LOW);
                 }
-                currState = state1;
+                
                 // Serial.println("Sending to state 1");
+                currState = state1;
                 break;
 
         case state2: //stop state
+            sendMessage("State 2 ^-^");
             Serial.println("in state 2");
             motions.stop();
-            delay(2000);
+            delay(500);
 
-            // currState = state3;
             Serial.println("Sending to state 3)");
+            currState = state3;
             break;
 
         case state3: //find red and pivot
+            sendMessage("State 3 ^-^");
             Serial.println("in state 3");
             digitalWrite(LED_BUILTIN, HIGH);
-            // object = objectDetected();
-            // while (!object) {
-            // object = objectDetected();
             int *colors = colorSensed();
 
             // go backwards to find red lane
-            while (colors[RIGHT] != RED && colors[LEFT] != RED) {
+            while (colors[LEFT] != RED) {
                 motions.backward();
                 colors = colorSensed();
                 // delay(2000);
             }
-
             motions.stop();
+            delay(500);
 
-            // turn roughly 90 degrees
-            int turnTime = 0;
-            while (turnTime < 220) {
-                motions.pivot_c();
-                turnTime++;
+            // right sensor is sensor 2 (right)
+
+            int rightTurn = 0;
+            while (rightTurn < 100) {
+                Serial.println("initial turn");
+                rightTurn++;
+                motions.pivot_cc();
             }
-            motions.stop();
 
+            while (colors[RIGHT] != RED) {
+                Serial.println("in loop");
+                motions.pivot_cc();
+                colors = colorSensed();
+            }
+
+            motions.stop();
+            Serial.println("DONE");
+
+            // while ((colors[RIGHT] == RED) || (colors[LEFT] == BLACK)){
+            //     motions.pivot_cc();
+            //     colors = colorSensed();
             // }
-            currState = state4;
-            Serial.println("Moving to state four");
+
+    
+            // //pivot until we sense black with the right and red with the left
+
+            // motions.stop();
+            // delay(5);
+
+            // //get to red on the right
+            // while (colors[RIGHT == BLACK]){
+            //     motions.pivot_c();
+            //     colors = colorSensed();
+            // }
+
+            // currState = state4;
+            // Serial.println("Moving to state four");
             break;
 
-        case state4:
-        motions.stop();
-        // reposition to make both sensors on red
-        // int *colors = colorSensed();
-        // while (colors[RIGHT] != RED && colors[LEFT] != RED) {
-        // motions.right_turn();
-        // }
-        // motions.stop();
-        // object = objectDetected();
+        case state4: //red lane following
+            sendMessage("State 4 ^-^");
+            Serial.println("in state 4");
+            motions.stop();
+            object = objectDetected();
+            
+            while (!object && colors[RIGHT] == RED) {
+                Serial.println("right is red");
+                motions.forward();
+                colors = colorSensed();
+                object = objectDetected();
+            }
+            while (!object && colors[RIGHT] != RED){
+                Serial.println("right is not red");
+                motions.pivot_c();
+                colors = colorSensed();
+                object = objectDetected();
+            }
+            if (object){
+                Serial.println("stopping");
+                currState = state5;
+                motions.stop();
+                break;
+            } 
+            currState = state4;
+            break;
+            motions.stop();
 
-        // while (!object) {
-        // colors = colorSensed();
-        // while (colors[RIGHT] == RED && colors[LEFT] == RED) {
-        // motions.forward();
-        // colors = colorSensed();
-        // }
+        case state5: // turning to find the yellow lane
+            sendMessage("State 5 ^-^");
+            motions.backward();
+            delay(1000);
+            motions.stop();
+            delay(5);
 
-        // while (colors[RIGHT] == BLACK && colors[LEFT] == RED) {
-        // motions.left_turn();
-        // colors = colorSensed();
-        // }
+            colors = colorSensed();
+            while(colors[RIGHT] == RED || colors[LEFT] == RED){
+                motions.pivot_c();
+                colors = colorSensed();
+            }
+            motions.stop();
+            delay(5);
+            colors = colorSensed();
+            while (colors[RIGHT] != YELLOW || colors[LEFT] != YELLOW) {
+                motions.forward();
+                colors = colorSensed();
+            }
 
-        // while (colors[RIGHT] == RED && colors[LEFT] == BLACK) {
-        // motions.right_turn();
-        // colors = colorSensed();
-        // }
-        // }
+            motions.stop();
 
-        // motions.stop();
-        // currState = state5;
-        // break;
-        // //object polling
-        // // while wall not sensed
-        // // while left and right are red
-        // // go forward
-        // //when left is red and right is black turn to left
-        // //when right is red left is black turn to right
-        // // while wall is sensed, stop and move to state 5 and break
-        // //move to state 5
+            while (colors[LEFT] == YELLOW){
+                motions.pivot_c();
+                colors = colorSensed();
+            }
+            currState = state6;
+            break;
 
-        // case state5: // turning to find the yellow lane
-        // int backTime = 0;
-        // while (backTime < 10) { // CALIBRATE LATER
-        // motions.backward();
-        // }
-        // motions.stop();
+        case state6: // moving in the yellow lane
+            sendMessage("State 6 ^-^");
+        // reposition to make both sensors on yellow
+            colors = colorSensed();
+            object = objectDetected();
+            while (!object && (colors[RIGHT] == YELLOW && colors[LEFT] != YELLOW)){
+                motions.forward();
+                object = objectDetected();
+                colors = colorSensed();
+            }
+            while(!object && colors[LEFT] == YELLOW){
+                motions.pivot_c();
+                object = objectDetected();
+                colors = colorSensed();
+                
+            }
+            if(object){
+                motions.stop();
+                delay(5);
+                currState = state7;
+                break;
+            }
+            currState = state6;
+            break;
 
-        // colors = colorSensed();
-        // while (colors[RIGHT] != BLACK || colors[LEFT] != BLACK) {
-        // motions.left_turn();
-        // colors = colorSensed();
-        // }
-        // motions.stop();
+        case state7: //turn and go back home
+            sendMessage("State 7 ^-^");
+            motions.backward();
+            delay(1000);
+            colors = colorSensed();
+            while(colors[RIGHT] == YELLOW || colors[LEFT] == YELLOW){
+                motions.pivot_c();
+                colors = colorSensed();
+            }
+            motions.stop();
+            delay(5);
 
-        // colors = colorSensed();
-        // while (colors[RIGHT] != YELLOW || colors[LEFT] != YELLOW) {
-        // motions.forward();
-        // }
-
-        // motions.stop();
-        // currState = state6;
-        // break;
-        // //go backward slightly to have room to turn
-        // //turn to left until both sense black
-        // //go forward until both sense yellow
-        // //go forward until both sense black
-        // //turn left until both sense yellow
-        // //turn left until left senses black
-        // //turn right until both sense yellow
-        // //go to state 6, break
-
-        // case state6: // moving in the yellow lane
-        // // reposition to make both sensors on yellow
-        // colors = colorSensed();
-        // while (colors[RIGHT] != YELLOW && colors[LEFT] != YELLOW) {
-        // motions.left_turn();
-        // }
-        // motions.stop();
-        // object = objectDetected();
-
-        // while (!object) {
-        // int *colors = colorSensed();
-        // while (colors[RIGHT] == YELLOW && colors[LEFT] == YELLOW) {
-        // motions.forward();
-        // colors = colorSensed();
-        // }
-
-        // while (colors[RIGHT] == BLACK && colors[LEFT] == YELLOW) {
-        // motions.left_turn();
-        // colors = colorSensed();
-        // }
-
-        // while (colors[RIGHT] == RED && colors[LEFT] == YELLOW) {
-        // motions.right_turn();
-        // colors = colorSensed();
-        // }
-        // }
-
-        // motions.stop();
-        // currState = state7;
-        // break;
-        // // bool object = objectDetected();
-        // // while(object){
-        // // motions.stop();
-        // // bool object = objectDetected();
-        // // Serial.println(object);
-        // // currState = state7;
-        // // break;
-        // // }
-        // // while(!object){
-        // // motions.forward();
-        // // bool object = objectDetected();
-        // // Serial.println(object);
-        // // }
-        // // currState = state7;
-
-        // default: // go back to where we started
-        // int turnTime = 0;
-        // while (turnTime < 10) { // CHANGE THIS VALUE
-        // motions.left_turn();
-        // turnTime++;
-        // }
-
-        // object = objectDetected();
-        // while (!object) {
-        // motions.forward();
-        // object = objectDetected();
-        // }
-        // motions.stop();
-        // //turn right until both sense black
-        // //go forward until wall detected
-        // break;
+            object = objectDetected();
+            bool finished = false;
+            while(!object){
+                motions.forward();
+                object = objectDetected();
+            }
+            finished = true;
+            motions.stop();
+            bool sentStop = false;
+            while (finished){
+                motions.stop();
+                if (!sentStop){
+                    sendMessage("Stopped :p");
+                    sentStop = true;
+                }
+            }
         }
+        // }
     }
 }

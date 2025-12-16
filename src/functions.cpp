@@ -1,3 +1,4 @@
+
 /*
  *      functions.cpp
  * 
@@ -33,6 +34,8 @@ void setPinModes() {
     digitalWrite(in4, LOW);
     digitalWrite(enA, LOW);
     digitalWrite(enB, LOW);
+
+    pinMode(BUTTON_PIN, INPUT_PULLUP);
 }
 
 String receiveMessage() {
@@ -64,118 +67,15 @@ String receiveMessage() {
 }
 
 
+
 void sendMessage(String messageToTeam){
     client.beginMessage(TYPE_TEXT);
     client.print(messageToTeam);
     client.endMessage();
-    Serial.println("sent");
     sentOnce = false;
 }
 
-int *colorSensed() {
-    redBuffer1.clear();
-    blueBuffer1.clear();
 
-    redBuffer2.clear();
-    blueBuffer2.clear();
-
-    // taking 10 phototransistor values for each color and each sensor, then 
-    // and pushing them to the corresponding buffer
-    for (int i = 0; i < 10; i++) {
-        digitalWrite(RED_LED, HIGH);
-        float red1 = analogRead(PHOTO_TRANS_1);
-        float red2 = analogRead(PHOTO_TRANS_2);
-        redBuffer1.push(red1);
-        redBuffer2.push(red2);
-
-        delay(40);
-
-        // Serial.print("red raw: ");
-        // Serial.print(red1);
-        // Serial.print(", ");
-
-        digitalWrite(RED_LED , LOW);
-        digitalWrite(BLUE_LED , HIGH);
-
-        float blue1 = analogRead(PHOTO_TRANS_1);
-        float blue2 = analogRead(PHOTO_TRANS_2);
-        blueBuffer1.push(blue1);
-        blueBuffer2.push(blue2);
-
-        digitalWrite(BLUE_LED , LOW);
-        // Serial.print(blue);
-        // Serial.println(", ");
-        delay(40);
-    }
-
-    float redSum1 = 0;
-    float redSum2 = 0;
-    float blueSum1 = 0;
-    float blueSum2 = 0;
-    
-    // finding the average of the 10 values
-    for (int i = 0; i < redBuffer1.size(); i++) {
-        redSum1 += redBuffer1[i];
-        redSum2 += redBuffer2[i];
-        blueSum1 += blueBuffer1[i];
-        blueSum2 += blueBuffer2[i];
-    }
-
-    float redAverage1 = redSum1 / redBuffer1.size();
-    float redAverage2 = redSum2 / redBuffer2.size();
-    float blueAverage1 = blueSum1 / blueBuffer1.size();
-    float blueAverage2 = blueSum2 / blueBuffer2.size();
-
-    // REMOVE
-    Serial.print(redAverage1);
-    Serial.print(",");
-    Serial.print(redAverage2);
-    Serial.print(",");
-
-    Serial.print(blueAverage1);
-    Serial.print(",");
-    Serial.print(blueAverage2);
-    Serial.print(": ");
-
-    int *colorIndices = new int[2];
-
-    // passing the red and blue average values for each sensor to a helper 
-    // function to get what color it is 
-    colorIndices[0] = colorIndex1(redAverage1, blueAverage1);
-    colorIndices[1] = colorIndex2(redAverage2, blueAverage2);
-    Serial.print(colorIndices[0]);
-    Serial.println(colorIndices[1]);
-
-    return colorIndices;
-}
-
-int colorIndex1(int redAverage, int blueAverage) { // just change everytime
-    if ((redAverage >= 20 && redAverage <= 24) && (blueAverage >= 26 && blueAverage <= 31)) {
-        return RED;
-    } else if ((redAverage >= 10 && redAverage <= 15) && (blueAverage >= 20 && blueAverage <= 26)) {
-        return BLUE;
-    } else if ((redAverage >= 74) && (blueAverage >= 65)) {
-        return YELLOW;
-    } else if ((redAverage >= 4 && redAverage <= 8) && (blueAverage >= 10 && blueAverage <= 14)) {
-        return BLACK;
-    } else {
-        return WRONG;
-    }
-}
-
-int colorIndex2(int redAverage, int blueAverage) {
-    if ((redAverage >= 15 && redAverage <= 17) && (blueAverage >= 20 && blueAverage <= 21)) {
-        return RED;
-    } else if ((redAverage >= 12 && redAverage <= 15) && (blueAverage >= 70 && blueAverage <= 76)) {
-        return BLUE;
-    } else if ((redAverage >= 48) && (blueAverage >= 39)) {
-        return YELLOW;
-    } else if ((redAverage >= 5 && redAverage <= 9) && (blueAverage >= 8 && blueAverage <= 14)) {
-        return BLACK;
-    } else {
-        return WRONG;
-    }
-}
 
 // int array[4] = {0, 0, 0, 0};
 bool firstTime = true; 
@@ -227,7 +127,7 @@ bool objectDetected(){
         firstTime = false;
     }
     float newReading = analogRead(PHOTO_DETECTOR);
-    float comparisonVal = -25; //change
+    float comparisonVal = -125; //change
 
     float difference = baseline - newReading;
     Serial.print("difference is ");
@@ -301,114 +201,7 @@ bool objectDetected(){
 // }
 
 
-void BotMotions::stop() {
-    // turn off motors
-    digitalWrite(in1, LOW);
-    digitalWrite(in2, LOW);
-    digitalWrite(in3, LOW);
-    digitalWrite(in4, LOW);
-}
 
-void BotMotions::backward() {
-    digitalWrite(enA, HIGH);
-    digitalWrite(enB, HIGH);
-
-    // turn on motors
-    digitalWrite(in1, LOW); // right motor
-    digitalWrite(in3, LOW); // left motor
-    digitalWrite(in2, HIGH); // right motor
-    digitalWrite(in4, HIGH); // left motor
-
-    analogWrite(enB, max_speed); // left motor enable
-    analogWrite(enA, max_speed); // right motor enable
-    delay(20);
-}
-
-void BotMotions::forward() {
-    // Serial.println("in forward");
-    digitalWrite(enA, HIGH);
-    digitalWrite(enB, HIGH);
-
-    // turn on motors
-    digitalWrite(in1, HIGH); // right motor
-    digitalWrite(in3, HIGH); // left motor
-    digitalWrite(in2, LOW); // right motor
-    digitalWrite(in4, LOW); // left motor
-
-    analogWrite(enB, max_speed);
-    analogWrite(enA, max_speed);
-    delay(20);
-}
-
-void BotMotions::pivot_c() {
-    digitalWrite(enA, HIGH);
-    digitalWrite(enB, HIGH);
-
-    // turn on motors
-    digitalWrite(in1, LOW); // right motor
-    digitalWrite(in3, HIGH); // left motor
-    digitalWrite(in2, LOW); // right motor
-    digitalWrite(in4, LOW); // left motor
-
-    analogWrite(enB, max_speed);
-    analogWrite(enA, max_speed);
-    delay(20);
-}
-
-void BotMotions::pivot_cc() {
-    digitalWrite(enA, HIGH);
-    digitalWrite(enB, HIGH);
-
-    // turn on motors
-    digitalWrite(in1, HIGH); // right motor
-    digitalWrite(in3, LOW); // left motor
-    digitalWrite(in2, LOW); // right motor
-    digitalWrite(in4, LOW); // left motor
-
-    analogWrite(enB, max_speed);
-    analogWrite(enA, max_speed);
-    delay(20);
-}
-
-void BotMotions::right_turn() {
-    // LEFT SPEED HAS TO BE HIGHER 
-    digitalWrite(enA, HIGH);
-    digitalWrite(enB, HIGH);
-
-    // turn on motors
-    digitalWrite(in1, HIGH); // right motor
-    digitalWrite(in3, HIGH); // left motor
-    digitalWrite(in2, LOW); // right motor
-    digitalWrite(in4, LOW); // left motor
-
-    analogWrite(enB, left_speed);
-    analogWrite(enA, right_speed);
-    delay(20);
-}
-
-void BotMotions::left_turn() {
-    //RIGHT SPEED HAS TO BE HIGHER
-    //Note: left motor is weak, so we need to have at least 50
-
-    digitalWrite(enA, HIGH);
-    digitalWrite(enB, HIGH);
-
-    // turn on motors
-    digitalWrite(in1, HIGH); // right motor
-    digitalWrite(in3, HIGH); // left motor
-    digitalWrite(in2, LOW); // right motor
-    digitalWrite(in4, LOW); // left motor
-
-    analogWrite(enB, left_speed);
-    analogWrite(enA, right_speed);
-    delay(20);
-}
-
-void BotMotions::set_speeds(int left_speed, int right_speed, int max_speed) {
-    this->left_speed = left_speed;
-    this->right_speed = right_speed;
-    this->max_speed = max_speed;
-}
 
 void wifiSetup() {
     while (status != WL_CONNECTED) {

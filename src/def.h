@@ -1,3 +1,4 @@
+
 /*
  *      def.h
  * 
@@ -48,11 +49,13 @@ extern int count; // idle counter
 #define RIGHT 0
 #define LEFT 1
 
-extern CircularBuffer<float, 10> redBuffer1;
-extern CircularBuffer<float, 10> redBuffer2;
+#define BUTTON_PIN 7
 
-extern CircularBuffer<float, 10> blueBuffer1;
-extern CircularBuffer<float, 10> blueBuffer2;
+extern CircularBuffer<float, 5> redBuffer1;
+extern CircularBuffer<float, 5> redBuffer2;
+
+extern CircularBuffer<float, 5> blueBuffer1;
+extern CircularBuffer<float, 5> blueBuffer2;
 
 extern CircularBuffer<float, 5> photoBuffer;
 // CircularBuffer<float, 4> buffer4;
