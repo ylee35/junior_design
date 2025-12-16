@@ -12,7 +12,7 @@
 char ssid[] = "tufts_eecs"; //username
 char pass[] = "foundedin1883"; //password
 
-char serverAddress[] = "10.5.15.226"; // server address
+char serverAddress[] = "10.243.98.251"; // server address
 int port = 8765; //port
 
 WiFiClient wifi; //wifi object
@@ -21,16 +21,5 @@ String clientID = "4A9EDB0160D5";  // clientID
 int status = WL_IDLE_STATUS; // client status
 int count = 0; // idle counter
 //-----------------------------------------------------------------------------
-
-CircularBuffer<float, 10> redBuffer1;
-CircularBuffer<float, 10> redBuffer2;
-
-CircularBuffer<float, 10> blueBuffer1;
-CircularBuffer<float, 10> blueBuffer2;
-
-CircularBuffer<float, 5> photoBuffer;
-// CircularBuffer<float, 4> buffer4;
-
-bool sentOnce = 1;
-
-// battery ground is thicc grey
+const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
