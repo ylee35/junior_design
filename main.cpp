@@ -6,55 +6,51 @@ void setup() {
   Serial.begin(9600);
   // Print a message to the LCD.
   Serial.println("printing in setup");
+  lcd.clear();
+
   lcd.print("hello");
   lcd.setCursor(0, 2);
   lcd.print("world");
+  delay(2000);
 
-  wifiSetup();
 
-  Serial.println("starting WebSocket client");
-  client.begin();
+  // wifiSetup();
 
-  // identify client ONCE
-  client.beginMessage(TYPE_TEXT);
-  client.print(clientID);
-  client.endMessage();
+  // Serial.println("starting WebSocket client");
+  // client.begin();
+
+  // // identify client ONCE
+  // client.beginMessage(TYPE_TEXT);
+  // client.print(clientID);
+  // client.endMessage();
 }
 
 unsigned long lastSend = 0;
 
 void loop() {
-  if (!client.connected()) {
-    Serial.println("WebSocket disconnected");
-    return;
-  }
+  // lcd.print("hello");
+  // lcd.setCursor(0, 2);
+  // lcd.print("world");
+  // delay(2000);
+  Serial.println("Should have printed");
+  // if (!client.connected()) {
+  //   Serial.println("WebSocket disconnected");
+  //   return;
+  // }
 
-  // Send message every 1 second
-  if (millis() - lastSend > 1000) {
-    lastSend = millis();
-    client.beginMessage(TYPE_TEXT);
-    client.print("Campbell rocks");
-    client.endMessage();
+  // // Send message every 1 second
+  // if (millis() - lastSend > 1000) {
+  //   lastSend = millis();
+  //   client.beginMessage(TYPE_TEXT);
+  //   client.print("Campbell");
+  //   client.endMessage();
 
-    Serial.println("Message sent to server");
-  }
+  //   Serial.println("Message sent to server");
+  // }
 
-  //Drain incoming messages
-  int messageSize;
-  while ((messageSize = client.parseMessage()) > 0) {
-    String message = client.readString();
-
-    Serial.print("Received: ");
-    Serial.println(message);
-
-    lcd.clear();
-    lcd.print(message);
-  }
-
-  delay(10); // needed delay for WiFiNINA
-
-  // int messageSize = client.parseMessage();
-  // if (messageSize > 0) {
+  // //Drain incoming messages
+  // int messageSize;
+  // while ((messageSize = client.parseMessage()) > 0) {
   //   String message = client.readString();
 
   //   Serial.print("Received: ");
@@ -62,34 +58,8 @@ void loop() {
 
   //   lcd.clear();
   //   lcd.print(message);
+  //   delay(2000);
   // }
 
-
-  // while (client.connected()) {
-
-  //   client.beginMessage(TYPE_TEXT);
-  //   client.print("Campbell"); // message
-  //   client.endMessage();
-
-  //   //int messageReceived = client.parseMessage();
-
-  //   // if (messageReceived) {
-  //   //   String message = client.readString();
-  //   //   Serial.print("message is ");
-  //   //   Serial.println(message);
-
-  //   //   lcd.print(message);
-  //   //   lcd.clear();
-  //   // }
-
-  //   int messageReceived = client.parseMessage();
-  //   if (messageReceived > 0) {
-  //     String message = client.readString();
-  //     Serial.print("message is");
-  //     Serial.println(message);
-
-  //     lcd.print(message);
-  //     lcd.clear();
-  //   }
-  // }
+  //delay(10); // needed delay for WiFiNINA
 }
