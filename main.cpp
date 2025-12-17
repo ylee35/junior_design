@@ -53,43 +53,4 @@ void loop() {
 
   delay(10); // needed delay for WiFiNINA
 
-  // int messageSize = client.parseMessage();
-  // if (messageSize > 0) {
-  //   String message = client.readString();
-
-  //   Serial.print("Received: ");
-  //   Serial.println(message);
-
-  //   lcd.clear();
-  //   lcd.print(message);
-  // }
-
-
-  // while (client.connected()) {
-
-  //   client.beginMessage(TYPE_TEXT);
-  //   client.print("Campbell"); // message
-  //   client.endMessage();
-
-  //   //int messageReceived = client.parseMessage();
-
-  //   // if (messageReceived) {
-  //   //   String message = client.readString();
-  //   //   Serial.print("message is ");
-  //   //   Serial.println(message);
-
-  //   //   lcd.print(message);
-  //   //   lcd.clear();
-  //   // }
-
-  //   int messageReceived = client.parseMessage();
-  //   if (messageReceived > 0) {
-  //     String message = client.readString();
-  //     Serial.print("message is");
-  //     Serial.println(message);
-
-  //     lcd.print(message);
-  //     lcd.clear();
-  //   }
-  // }
 }
