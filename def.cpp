@@ -12,12 +12,15 @@
 char ssid[] = "tufts_eecs"; //username
 char pass[] = "foundedin1883"; //password
 
-char serverAddress[] = "10.243.98.251"; // server address
-int port = 8765; //port
+//char serverAddress[] = "10.50.42.66"; // our server address
+char serverAddress[] = "35.239.140.61"; // Halligan server
+//int port = 8765; // our port
+int port = 8080; // Halligan port
 
 WiFiClient wifi; //wifi object
 WebSocketClient client = WebSocketClient(wifi, serverAddress, port); // client object
-String clientID = "4A9EDB0160D5";  // clientID
+//String clientID = "4A9EDB0160D5";  // clientID
+String clientID = "56FC703ACE1A"; //clientID
 int status = WL_IDLE_STATUS; // client status
 int count = 0; // idle counter
 //-----------------------------------------------------------------------------
