@@ -129,13 +129,13 @@ void laneFollowing(int targetColor) {
         }
 
         int *colors = colorSensed();
-        bool onTarget = (colors[RIGHT] == targetColor);
+        bool onTarget = (colors[LEFT] == targetColor);
         switch (laneState) {
             case ON_COLOR: {
-                if (colors[RIGHT] == targetColor) {
+                if (colors[LEFT] == targetColor) {
                     // pulse forward, then re-check next loop
                     Serial.println("on target");
-                    motions.forwardLeft();
+                    motions.forwardRight();
                     delay(FWD_MS);
                     motions.stop();
                     delay(100);

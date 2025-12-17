@@ -147,6 +147,21 @@ void BotMotions::forwardLeft() {
     delay(20);
 }
 
+void BotMotions::forwardRight() {
+    digitalWrite(enA, HIGH);
+    digitalWrite(enB, HIGH);
+
+    // turn on motors
+    digitalWrite(in1, HIGH); // right motor
+    digitalWrite(in3, HIGH); // left motor
+    digitalWrite(in2, LOW); // right motor
+    digitalWrite(in4, LOW); // left motor
+
+    analogWrite(enB, max_speed - 50);
+    analogWrite(enA, max_speed + 50);
+    delay(20);
+}
+
 void BotMotions::set_speeds(int left_speed, int right_speed, int max_speed) {
     this->left_speed = left_speed;
     this->right_speed = right_speed;

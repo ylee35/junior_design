@@ -9,6 +9,7 @@ class BotMotions {
         void speedControl();
         void forward();
         void forwardLeft();
+        void forwardRight();
         void stop();
         void backward();
         void pivot_c();
