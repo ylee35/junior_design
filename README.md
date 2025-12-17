@@ -9,11 +9,6 @@ To access our secure server, run the client.py & app.py files under the main bra
 
 (Note: The def.cpp files included in this repo reference a serverAddress variable that is the local IP address of our computer. To successfully run the server, change this IP address to the address of your personal computer.)
 
-If you want to go beyond & use the LCD screen, navigate to the main branch to find the files regarding the final iiteration of the LCD Screen. The LCD Screen prints what state the bot is in.
-
-For the LCD Screen:
-The functions.cpp, functions.h, & def.h files are labeled "LCD Screen Code for States".
-The main.cpp & platform.ini files are labeled "LCD Screen FINAL CODE using I2C".
-The def.cpp file is labeled "LCD Screen WebSocket Working w Halligan Server".
+If you want to go beyond & use the LCD screen, navigate to the LCD folder. The LCD Screen prints what state the bot is in.
 
 Happy Roboting! Meow
