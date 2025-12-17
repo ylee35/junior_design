@@ -273,11 +273,15 @@ void loop() {
 
               timesReceived++;
 
-              // if (message == "Blue lane found!"){
+              // if (timesReceived == 2) {
               //   proceedYellow = true;
               // }
-              if (timesReceived == 2) {
+
+              // Check if message contains the specific ID
+              if (message.indexOf(clientID2) != 1) {
                 proceedYellow = true;
+                Serial.println("Partner team detected!");
+                break;   // optional: stop once found
               }
             }
           }
