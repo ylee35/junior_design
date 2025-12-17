@@ -1,56 +1,27 @@
-#include "def.h"
-#include "functions.h"
+#include <LiquidCrystal_I2C.h>
+
+//define I2C address....
+LiquidCrystal_I2C lcd(0x27,16,2);
 
 void setup() {
-  lcd.begin(16,2);
-  Serial.begin(9600);
-  // Print a message to the LCD.
-  Serial.println("printing in setup");
-  lcd.print("hello");
-  lcd.setCursor(0, 2);
-  lcd.print("world");
+  lcd.init();
+  lcd.clear();
+  lcd.backlight();
 
-  wifiSetup();
-
-  Serial.println("starting WebSocket client");
-  client.begin();
-
-  // identify client ONCE
-  client.beginMessage(TYPE_TEXT);
-  client.print(clientID);
-  client.endMessage();
 }
 
-unsigned long lastSend = 0;
-
 void loop() {
-  if (!client.connected()) {
-    Serial.println("WebSocket disconnected");
-    return;
-  }
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Bad Cats In Da");
+  lcd.setCursor(0, 1);
+  lcd.print("HOUSEEEE ^-^");
+  delay(1000);
 
-  // Send message every 1 second
-  if (millis() - lastSend > 1000) {
-    lastSend = millis();
-    client.beginMessage(TYPE_TEXT);
-    client.print("Campbell");
-    client.endMessage();
+  lcd.clear();
+  lcd.setCursor(2 , 0);
+  lcd.print("Yay");
+  delay(1000);
 
-    Serial.println("Message sent to server");
-  }
-
-  //Drain incoming messages
-  int messageSize;
-  while ((messageSize = client.parseMessage()) > 0) {
-    String message = client.readString();
-
-    Serial.print("Received: ");
-    Serial.println(message);
-
-    lcd.clear();
-    lcd.print(message);
-  }
-
-  delay(10); // needed delay for WiFiNINA
 
 }
