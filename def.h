@@ -78,4 +78,7 @@ extern CircularBuffer<float, 5> photoBuffer;
 //----------------------- Server Comms ----------------------------------------
 extern bool sentOnce;
 
+extern float comparisonVal; //change
+extern float newComparisonVal;
+
 #endif

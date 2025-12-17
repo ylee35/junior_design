@@ -76,7 +76,6 @@ void sendMessage(String messageToTeam){
 }
 
 
-
 bool firstTime = true; 
 float baseline; 
 
@@ -93,9 +92,10 @@ bool objectDetected(){
         firstTime = false;
     }
     float newReading = analogRead(PHOTO_DETECTOR);
-    float comparisonVal = -85; //change
 
     float difference = baseline - newReading;
+    Serial.print("comparison val is ");
+    Serial.println(comparisonVal);
     Serial.print("difference is ");
     Serial.println(difference);
     //if (color is yel)
@@ -103,12 +103,14 @@ bool objectDetected(){
         return true;
     }
 
+
+
     return false;
 }
 
 
 // Example lane states for ONE-sensor follower (use RIGHT sensor only)
-enum LaneState { ON_COLOR, SEARCH_LEFT_1, SEARCH_RIGHT_1, BACKUP };
+enum LaneState { ON_COLOR, SEARCH_LEFT_1, SEARCH_LEFT_2, SEARCH_RIGHT_1, SEARCH_RIGHT_2, BACKUP };
 LaneState laneState = ON_COLOR;
 
 void laneFollowing(int targetColor) {
@@ -128,19 +130,24 @@ void laneFollowing(int targetColor) {
 
         int *colors = colorSensed();
         bool onTarget = (colors[RIGHT] == targetColor);
-
         switch (laneState) {
-
             case ON_COLOR: {
-                if (onTarget) {
+                if (colors[RIGHT] == targetColor) {
                     // pulse forward, then re-check next loop
                     Serial.println("on target");
                     motions.forwardLeft();
                     delay(FWD_MS);
                     motions.stop();
+                    delay(100);
                     laneState = ON_COLOR;
-                } else {
+                } else if (colors[RIGHT] != targetColor && colors[LEFT] != targetColor) {
                     motions.stop();
+                    delay(100);
+                    laneState = SEARCH_RIGHT_1;
+                } 
+                else {
+                    motions.stop();
+                    delay(100);
                     laneState = SEARCH_LEFT_1;
                 }
                 break;
@@ -153,52 +160,58 @@ void laneFollowing(int targetColor) {
                 motions.pivot_cc();        // pivot left (CCW)
                 delay(STEP_MS);
                 motions.stop();
+                delay(100);
+                delay(100);
 
                 // next loop will re-sense
-                laneState = SEARCH_RIGHT_1;
+                laneState = SEARCH_LEFT_2;
                 break;
             }
 
-            // case SEARCH_LEFT_2: {
-            //     Serial.println("search left 2");
-            //     if (onTarget) { laneState = ON_COLOR; break; }
+            case SEARCH_LEFT_2: {
+                Serial.println("search left 2");
+                if (onTarget) { laneState = ON_COLOR; break; }
 
-            //     motions.pivot_cc();        // pivot left more
-            //     delay(STEP_MS);
-            //     motions.stop();
+                motions.pivot_cc();        // pivot left more
+                delay(STEP_MS);
+                motions.stop();
+                delay(100);
 
-            //     laneState = SEARCH_RIGHT_1;
-            //     break;
-            // }
+                laneState = SEARCH_RIGHT_1;
+                break;
+            }
 
             case SEARCH_RIGHT_1: {
                 Serial.println("search right 1");
                 if (onTarget) { laneState = ON_COLOR; break; }
 
                 motions.pivot_c();         // pivot right (CW)
-                delay(STEP_MS);
+                delay(2 * STEP_MS);
                 motions.stop();
+                delay(100);
 
                 motions.pivot_c();
-                delay(STEP_MS);
+                delay(STEP_MS + 50);
                 motions.stop();
+                delay(100);
 
-                laneState = BACKUP;
+                laneState = SEARCH_RIGHT_2;
                 break;
             }
 
-            // case SEARCH_RIGHT_2: {
-            //     Serial.println("search right 2");
-            //     if (onTarget) { laneState = ON_COLOR; break; }
+            case SEARCH_RIGHT_2: {
+                Serial.println("search right 2");
+                if (onTarget) { laneState = ON_COLOR; break; }
 
-            //     motions.pivot_c();         // pivot right more
-            //     delay(STEP_MS);
-            //     motions.stop();
+                motions.pivot_c();         // pivot right more
+                delay(STEP_MS + 50);
+                motions.stop();
+                delay(100);
 
-            //     // If still not found by next loop, back up
-            //     laneState = BACKUP;
-            //     break;
-            // }
+                // If still not found by next loop, back up
+                laneState = BACKUP;
+                break;
+            }
 
             case BACKUP: {
                 Serial.println("backup");
@@ -206,12 +219,137 @@ void laneFollowing(int targetColor) {
                 if (onTarget) { laneState = ON_COLOR; break; }
 
                 motions.pivot_cc(); 
-                delay(STEP_MS);
+                delay(2 * STEP_MS + 100);
                 motions.stop();
+                delay(100);
 
                 motions.backward();
                 delay(BACK_MS);
                 motions.stop();
+                delay(100);
+
+                // restart search
+                laneState = SEARCH_LEFT_1;
+                break;
+            }
+        } // switch
+    } // while
+}
+
+void laneFollowingStraight(int targetColor) {
+    Serial.println("in lane following");
+    BotMotions motions;
+    motions.set_speeds(150,150,150);
+
+    const int STEP_MS   = 150;   // small action step
+    const int FWD_MS    = 150;
+    const int BACK_MS   = 150;  // how long to back up when lost
+    // ideas: drift or when you sense color, dont just go forward, go slightly left (blue second half)
+    while (true) {
+        if (objectDetected()) {
+            motions.stop();
+            return;
+        }
+
+        int *colors = colorSensed();
+        bool onTarget = (colors[RIGHT] == targetColor);
+        switch (laneState) {
+            case ON_COLOR: {
+                if (colors[RIGHT] == targetColor) {
+                    // pulse forward, then re-check next loop
+                    Serial.println("on target");
+                    motions.forward();
+                    delay(FWD_MS);
+                    motions.stop();
+                    delay(100);
+                    laneState = ON_COLOR;
+                } else if (colors[RIGHT] != targetColor && colors[LEFT] != targetColor) {
+                    motions.stop();
+                    delay(100);
+                    laneState = SEARCH_RIGHT_1;
+                } 
+                else {
+                    motions.stop();
+                    delay(100);
+                    laneState = SEARCH_LEFT_1;
+                }
+                break;
+            }
+
+            case SEARCH_LEFT_1: {
+                Serial.println("search left 1");
+                if (onTarget) { laneState = ON_COLOR; break; }
+
+                motions.pivot_cc();        // pivot left (CCW)
+                delay(STEP_MS);
+                motions.stop();
+                delay(100);
+                delay(100);
+
+                // next loop will re-sense
+                laneState = SEARCH_LEFT_2;
+                break;
+            }
+
+            case SEARCH_LEFT_2: {
+                Serial.println("search left 2");
+                if (onTarget) { laneState = ON_COLOR; break; }
+
+                motions.pivot_cc();        // pivot left more
+                delay(STEP_MS);
+                motions.stop();
+                delay(100);
+
+                laneState = SEARCH_RIGHT_1;
+                break;
+            }
+
+            case SEARCH_RIGHT_1: {
+                Serial.println("search right 1");
+                if (onTarget) { laneState = ON_COLOR; break; }
+
+                motions.pivot_c();         // pivot right (CW)
+                delay(2 * STEP_MS);
+                motions.stop();
+                delay(100);
+
+                motions.pivot_c();
+                delay(STEP_MS + 50);
+                motions.stop();
+                delay(100);
+
+                laneState = SEARCH_RIGHT_2;
+                break;
+            }
+
+            case SEARCH_RIGHT_2: {
+                Serial.println("search right 2");
+                if (onTarget) { laneState = ON_COLOR; break; }
+
+                motions.pivot_c();         // pivot right more
+                delay(STEP_MS + 50);
+                motions.stop();
+                delay(100);
+
+                // If still not found by next loop, back up
+                laneState = BACKUP;
+                break;
+            }
+
+            case BACKUP: {
+                Serial.println("backup");
+                // one more check before backing up
+                if (onTarget) { laneState = ON_COLOR; break; }
+
+                motions.pivot_cc(); 
+                delay(2 * STEP_MS + 100);
+                motions.stop();
+                delay(100);
+
+                motions.backward();
+                delay(BACK_MS);
+                motions.stop();
+                delay(100);
 
                 // restart search
                 laneState = SEARCH_LEFT_1;

@@ -95,6 +95,7 @@ void loop() {
 
             if (object) {
                 motions.stop();
+                delay(100);
                 // digitalWrite(LED_BUILTIN, HIGH);
                 // Serial.println("Object detected");
                 currState = state2;
@@ -108,10 +109,12 @@ void loop() {
             sendMessage("State 2 ^-^");
             Serial.println("in state 2");
             motions.stop();
+            delay(100);
 
             motions.pivot_c();
-            delay(4500);
+            delay(3500);
             motions.stop();
+            delay(100);
 
             Serial.println("Sending to state 3)");
             currState = state3;
@@ -121,6 +124,8 @@ void loop() {
             digitalWrite(LED_BUILTIN, HIGH);
             int *colors = colorSensed();
 
+            // if both are not red then we just go riht
+
             // go backwards to find red lane
             while (colors[RIGHT] != RED) { // CHANGE BACK TO LEFT
                 motions.forward();
@@ -128,6 +133,11 @@ void loop() {
                 // delay(2000);
             }
             motions.stop();
+            delay(100);
+            motions.backward();
+            delay(400);
+            motions.pivot_cc();
+            delay(350);
             Serial.print("COLORS IS NOW ");
             Serial.println(colors[RIGHT]);
 
@@ -136,10 +146,10 @@ void loop() {
             //     colors = colorSensed();
             // }
             motions.repositionLeft();
-            delay(1000);
+            delay(800);
             motions.stop();
+            delay(100);
 
-            delay(500);
 
             // while (colors[RIGHT] != RED) {
             //     Serial.println("in loop");
@@ -156,11 +166,78 @@ void loop() {
         } else if (currState == state4) {
             Serial.println("in state 4");
             motions.stop();
+            delay(100);
+            comparisonVal = -65;
+
+
             laneFollowing(RED);
             currState = state5;
+        } else if (currState == state5) {
+            Serial.println("in state 5");
+            motions.repositionLeft();
+            delay(1100);
+            motions.stop();
+            delay(100);
+            int *colors = colorSensed();
+
+            while (colors[RIGHT] != YELLOW) {
+                motions.forward();
+                colors = colorSensed();
+            }
+
+            motions.stop();
+            delay(100);
+
+            currState = state6;
+        } else if (currState == state6) {
+            Serial.println("in state 6");
+            int *colors = colorSensed();
+            while (colors[RIGHT] != BLACK) {
+                motions.forward();
+                colors = colorSensed();
+            }
+
+            motions.repositionLeft();
+            delay(1100);
+            motions.stop();
+            
+            comparisonVal = -40;
+        
+            laneFollowingStraight(YELLOW);
+            Serial.println("OUT OF LANE FOLLOWING YELLOW");
+            motions.stop();
+            currState = state7;
+        } else if (currState == state7) {
+            Serial.println("in state 7");
+            motions.repositionLeft();
+            delay(1000);
+            motions.stop();
+
+            // comparisonVal = -85;
+
+            // object = objectDetected();
+
+            // while (!object) {
+            //     motions.forward();
+            //     object = objectDetected();
+            // }
+
+            motions.forward();
+            delay(750);
+            motions.stop();
+
+            while (1) {
+                motions.stop();
+            }
+        } else {
+            Serial.println("in else");
+            motions.stop();
         }
     }
 
+    while(1) {
+        Serial.println("out of the if's");
+    }
 
     while(0){
         Serial.print("TOP currState=");

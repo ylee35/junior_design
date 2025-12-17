@@ -20,5 +20,5 @@ void wifiSetup();
 void sendMessage(String messageToTeam);
 String receiveMessage();
 void laneFollowing(int targetColor);
-
+void laneFollowingStraight(int targetColor);
 #endif
