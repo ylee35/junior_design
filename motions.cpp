@@ -167,4 +167,3 @@ void BotMotions::set_speeds(int left_speed, int right_speed, int max_speed) {
     this->right_speed = right_speed;
     this->max_speed = max_speed;
 }
-

@@ -35,7 +35,7 @@ CircularBuffer<float, 5> photoBuffer;
 
 bool sentOnce = 1;
 
-float comparisonVal = -85;
+float comparisonVal = -90;
 // float newComparisonVal = -30;
 
 // battery ground is thicc grey

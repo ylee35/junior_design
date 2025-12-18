@@ -128,7 +128,7 @@ void loop() {
             // if both are not red then we just go riht
 
             // go backwards to find red lane
-            while (colors[RIGHT] != BLUE) { // CHANGE BACK TO LEFT
+            while (colors[LEFT] != BLUE) { // CHANGE BACK TO LEFT
                 motions.forward();
                 colors = colorSensed();
                 // delay(2000);
@@ -147,7 +147,7 @@ void loop() {
             //     colors = colorSensed();
             // }
             motions.repositionRight();
-            delay(800);
+            delay(600);
             motions.stop();
             delay(100);
 
@@ -168,7 +168,7 @@ void loop() {
             Serial.println("in state 4");
             motions.stop();
             delay(100);
-            comparisonVal = -95;
+            comparisonVal = -90;
 
 
             laneFollowing(BLUE);
@@ -202,7 +202,7 @@ void loop() {
             delay(1100);
             motions.stop();
             
-            comparisonVal = -70;
+            comparisonVal = -80;
         
             laneFollowingStraight(YELLOW);
             Serial.println("OUT OF LANE FOLLOWING YELLOW");

@@ -143,7 +143,7 @@ void laneFollowing(int targetColor) {
                 } else if (colors[RIGHT] != targetColor && colors[LEFT] != targetColor) {
                     motions.stop();
                     delay(100);
-                    laneState = SEARCH_RIGHT_1;
+                    laneState = SEARCH_LEFT_1;
                 } 
                 else {
                     motions.stop();
@@ -158,7 +158,7 @@ void laneFollowing(int targetColor) {
                 if (onTarget) { laneState = ON_COLOR; break; }
 
                 motions.pivot_cc();        // pivot left (CCW)
-                delay(STEP_MS);
+                delay(STEP_MS + 25);
                 motions.stop();
                 delay(100);
                 delay(100);
@@ -173,7 +173,7 @@ void laneFollowing(int targetColor) {
                 if (onTarget) { laneState = ON_COLOR; break; }
 
                 motions.pivot_cc();        // pivot left more
-                delay(STEP_MS);
+                delay(STEP_MS + 25);
                 motions.stop();
                 delay(100);
 
@@ -186,12 +186,12 @@ void laneFollowing(int targetColor) {
                 if (onTarget) { laneState = ON_COLOR; break; }
 
                 motions.pivot_c();         // pivot right (CW)
-                delay(2 * STEP_MS);
+                delay(2 * STEP_MS + 50);
                 motions.stop();
                 delay(100);
 
                 motions.pivot_c();
-                delay(STEP_MS + 50);
+                delay(STEP_MS);
                 motions.stop();
                 delay(100);
 
@@ -204,7 +204,7 @@ void laneFollowing(int targetColor) {
                 if (onTarget) { laneState = ON_COLOR; break; }
 
                 motions.pivot_c();         // pivot right more
-                delay(STEP_MS + 50);
+                delay(STEP_MS);
                 motions.stop();
                 delay(100);
 
@@ -219,7 +219,7 @@ void laneFollowing(int targetColor) {
                 if (onTarget) { laneState = ON_COLOR; break; }
 
                 motions.pivot_cc(); 
-                delay(2 * STEP_MS + 100);
+                delay(2 * STEP_MS);
                 motions.stop();
                 delay(100);
 
@@ -359,6 +359,7 @@ void laneFollowingStraight(int targetColor) {
     } // while
 }
 
+// 9 10 101 103
 
 
 void wifiSetup() {
