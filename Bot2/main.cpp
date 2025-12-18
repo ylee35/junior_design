@@ -110,10 +110,13 @@ void loop() {
   int count = 0;
 
   motions.set_speeds(150, 150, 150);
+ object = objectDetected();
 
+  // while(1) {
+  // object = objectDetected();
+  // }
 
-
-  while (1) {
+  while (1){
       if (currState == state1) {
         // int sent = false;
         // if (!sent){
@@ -126,6 +129,7 @@ void loop() {
 
         bool signalStart = false;
         int timesReceived = 0;
+       
 
         // Trying to see if we can start
         while(!signalStart) {
@@ -135,21 +139,48 @@ void loop() {
             Serial.print("Received: ");
             Serial.println(message);
 
-            timesReceived++;
+            bool startsWithID = message.startsWith("F79721857DC5");
+            bool containsBanned = (message.indexOf("CLIENTID:F79721857DC5") != -1);
+
+            if (startsWithID && !containsBanned) {
+              timesReceived++;
+            }
+
+            // if((message.indexOf('s') != 1) || (message.indexOf('r') != 1)) {
+            // timesReceived++;
+            // }
 
             // if (timesReceived == 2) {
             //   proceedYellow = true;
             // }
 
             // Check if message contains the specific ID
-            if (message.indexOf(clientID2) != 1) {
-              signalStart = true;
-              Serial.println("Partner team detected!");
-              break;   // optional: stop once found
+            // if (timesReceived == 4){
+            //   if (message.indexOf(clientID2) != 1) {
+            //     // if ((message.indexOf('s') != 1) || (message.indexOf('r') != 1)) {
+            //       signalStart = true;
+            //       Serial.println("Partner team detected!");
+            //       break;   // optional: stop once found
+            //     // }
+            //   }
+            // }
+            if (timesReceived == 2) {
+              // bool startsWithID = message.startsWith("F79721857DC5");
+              // bool containsBanned = (message.indexOf("CLIENTID:F79721857DC5") != -1);
+
+              if (startsWithID && !containsBanned) {
+                signalStart = true;
+                Serial.println("Partner team detected!");
+                // timesReceived++;
+                // if(timesReceived == 2){
+                //   break;
+                // }
+                break;
+              }
             }
           }
         }
-        Serial.print("WE RECEIVED THIS: ");
+        Serial.print("WE RECEIVED THIS MANY TIMES: ");
         Serial.println(timesReceived);
 
         if (signalStart) {
@@ -165,26 +196,31 @@ void loop() {
 
           Serial.println("in state1");
           motions.forward();
-          while(count < 20){
+
+          while (1) {
+            while(count < 20){
               object = objectDetected();
               count++;
               motions.forward();
+            }
+
+            object = objectDetected();
+
+            if (object) {
+                motions.stop();
+                delay(100);
+                // digitalWrite(LED_BUILTIN, HIGH);
+                // Serial.println("Object detected");
+                currState = state2;
+                break;
+                // Serial.println("Sending to state 2");
+            } else {
+                motions.forward();
+                digitalWrite(LED_BUILTIN, LOW);
+            }
+
           }
-
-          object = objectDetected();
-
-          if (object) {
-              motions.stop();
-              delay(100);
-              // digitalWrite(LED_BUILTIN, HIGH);
-              // Serial.println("Object detected");
-              currState = state2;
-              // Serial.println("Sending to state 2");
-          } else {
-              motions.forward();
-              digitalWrite(LED_BUILTIN, LOW);
-          }
-
+          
         }
 
       } else if (currState == state2) {
@@ -209,7 +245,7 @@ void loop() {
           // if both are not red then we just go right
 
           // go backwards to find red lane
-          while (colors[RIGHT] != BLUE) { // CHANGE BACK TO LEFT
+          while (colors[LEFT]!= BLUE) {
               motions.forward();
               colors = colorSensed();
               // delay(2000);
@@ -228,7 +264,7 @@ void loop() {
           //     colors = colorSensed();
           // }
           motions.repositionRight();
-          delay(800);
+          delay(550);
           motions.stop();
           delay(100);
 
@@ -249,11 +285,12 @@ void loop() {
           Serial.println("in state 4");
           motions.stop();
           delay(100);
-          comparisonVal = -95;
+          // comparisonVal = -95;
 
+          delay(10000);
           // post blue lane found signal to server
           client.beginMessage(TYPE_TEXT);
-          client.print("Blue lane found");
+          client.print("blue lane found");
           client.endMessage();
 
           Serial.println("Message sent to partner team");
@@ -289,18 +326,32 @@ void loop() {
             Serial.print("Received: ");
             Serial.println(message);
 
-            timesReceived2++;
+            bool startsWithID = message.startsWith("F79721857DC5");
+            bool containsBanned = (message.indexOf("CLIENTID:F79721857DC5") != -1);
+
+            if (startsWithID && !containsBanned) {
+              timesReceived2++;
+            }
+
+            // timesReceived2++;
 
             // if (timesReceived == 2) {
             //   proceedYellow = true;
             // }
 
             // Check if message contains the specific ID
-            if (message.indexOf(clientID2) != 1) {
-              proceedYellow = true;
-              Serial.println("Partner team detected!");
-              break;   // optional: stop once found
+            if (timesReceived2 == 1) {
+              if (startsWithID && !containsBanned) {
+                proceedYellow = true;
+                Serial.println("Partner team detected!");
+                break;   // optional: stop once found
+              }
             }
+            // if (startsWithID && !containsBanned) {
+            //   proceedYellow = true;
+            //   Serial.println("Partner team detected!");
+            //   break;   // optional: stop once found
+            // }
           }
         }
         Serial.print("WE RECEIVED THIS: ");
@@ -318,7 +369,7 @@ void loop() {
           delay(1100);
           motions.stop();
           
-          comparisonVal = -70;
+          comparisonVal = -80;
       
           // wait for home signal from Bot 1
           bool partnerHome = false;
@@ -330,23 +381,37 @@ void loop() {
               Serial.print("Received: ");
               Serial.println(message);
 
-              timesReceived3++;
+              bool startsWithID = message.startsWith("F79721857DC5");
+              bool containsBanned = (message.indexOf("CLIENTID:F79721857DC5") != -1);
+
+              if (startsWithID && !containsBanned) {
+                timesReceived3++;
+              }
+
+              // timesReceived3++;
 
               // if (timesReceived == 2) {
               //   proceedYellow = true;
               // }
 
               // Check if message contains the specific ID
-              if (message.indexOf(clientID2) != 1) {
-                partnerHome = true;
-                Serial.println("Partner team detected!");
-                break;   // optional: stop once found
+              if (timesReceived3 == 1) {
+                if (startsWithID && !containsBanned) {
+                  partnerHome = true;
+                  Serial.println("Partner team detected!");
+                  break;   // optional: stop once found
+                }
               }
+              // if (message.indexOf(clientID2) != 1) {
+              //   partnerHome = true;
+              //   Serial.println("Partner team detected!");
+              //   break;   // optional: stop once found
+              // }
             }
           }
           Serial.print("WE RECEIVED THIS: ");
           Serial.println(timesReceived3);
-
+          comparisonVal = -80;
           laneFollowingStraight(YELLOW);
           Serial.println("OUT OF LANE FOLLOWING YELLOW");
           motions.stop();
@@ -380,7 +445,7 @@ void loop() {
       }
   }
 
-  while(1) {
+  while(0) {
       Serial.println("out of the if's");
   }
 
@@ -421,7 +486,7 @@ void loop() {
               break;
 
       case state2: //stop state
-          sendMessage("State 2 ^-^");
+          // sendMessage("State 2 ^-^");
           Serial.println("in state 2");
           motions.stop();
           delay(500);
@@ -431,7 +496,7 @@ void loop() {
           break;
 
       case state3: //find red and pivot
-          sendMessage("State 3 ^-^");
+          // sendMessage("State 3 ^-^");
           Serial.println("in state 3");
           digitalWrite(LED_BUILTIN, HIGH);
           int *colors = colorSensed();
