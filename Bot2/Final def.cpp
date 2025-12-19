@@ -1,0 +1,44 @@
+
+
+/*
+ *      def.cpp
+ * 
+ *      This file contains definitions for the WiFi parameters and declarations
+ *      for the bfufers used in color sensing. 
+ * 
+*/
+
+#include "def.h"
+
+//------------------------- WiFi Settings -------------------------------------
+char ssid[] = "tufts_eecs"; //username
+char pass[] = "foundedin1883"; //password
+
+char serverAddress[] = "35.239.140.61"; // server address
+int port = 8080; //port
+
+WiFiClient wifi; //wifi object
+WebSocketClient client = WebSocketClient(wifi, serverAddress, port); // client object
+String clientID = "4A9EDB0160D5";  // clientID
+// String clientID2 = "56FC703ACE1A"; // partner ID
+// F79721857DC5
+String clientID2 = "56FC703ACE1A";
+int status = WL_IDLE_STATUS; // client status
+int count = 0; // idle counter
+//-----------------------------------------------------------------------------
+
+CircularBuffer<float, 1> redBuffer1;
+CircularBuffer<float, 1> redBuffer2;
+
+CircularBuffer<float, 1> blueBuffer1;
+CircularBuffer<float, 1> blueBuffer2;
+
+CircularBuffer<float, 5> photoBuffer;
+// CircularBuffer<float, 4> buffer4;
+
+bool sentOnce = 1;
+
+float comparisonVal = -330;
+// float newComparisonVal = -30;
+
+// battery ground is thicc grey
